@@ -6,3 +6,7 @@ authors = ["Matthew Klein <mklein994@gmail.com>"]
 [dependencies]
 darksky = "0.7.0"
 dotenv = "0.10.1"
+futures = "0.1.17"
+hyper = "0.11.8"
+hyper-tls = "0.1.2"
+tokio-core = "0.1.10"
