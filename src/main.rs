@@ -38,7 +38,15 @@ impl Config {
 }
 
 fn main() {
-    dotenv::dotenv().ok();
+    dotenv::from_path(
+        env::home_dir()
+            .unwrap()
+            .join(".config/weather/config")
+            .as_path(),
+    ).unwrap_or_else(|e| {
+        eprintln!("Error parsing config file ~/.config/weather/config: {}", e);
+        std::process::exit(1);
+    });
 
     let config = Config::new();
 
