@@ -4,6 +4,7 @@ extern crate futures;
 extern crate hyper;
 extern crate hyper_tls;
 extern crate tokio_core;
+extern crate weather_icons;
 
 extern crate serde_json;
 
@@ -13,6 +14,9 @@ use hyper::client::Client;
 use hyper_tls::HttpsConnector;
 use std::env;
 use tokio_core::reactor::Core;
+
+use darksky::models::Icon as DarkskyIcon;
+use weather_icons::Icon;
 
 mod local;
 
@@ -73,4 +77,22 @@ fn run(config: Config) -> Result<(), Box<std::error::Error>> {
 
     core.run(work)?;
     Ok(())
+}
+
+fn get_icon(icon: &DarkskyIcon) -> Icon {
+    match *icon {
+        DarkskyIcon::ClearDay => Icon::DarkskyClearDay,
+        DarkskyIcon::ClearNight => Icon::DarkskyClearNight,
+        DarkskyIcon::Cloudy => Icon::DarkskyCloudy,
+        DarkskyIcon::Fog => Icon::DarkskyFog,
+        DarkskyIcon::Hail => Icon::DarkskyHail,
+        DarkskyIcon::PartlyCloudyDay => Icon::DarkskyPartlyCloudyDay,
+        DarkskyIcon::PartlyCloudyNight => Icon::DarkskyPartlyCloudyNight,
+        DarkskyIcon::Rain => Icon::DarkskyRain,
+        DarkskyIcon::Sleet => Icon::DarkskySleet,
+        DarkskyIcon::Snow => Icon::DarkskySnow,
+        DarkskyIcon::Thunderstorm => Icon::DarkskyThunderstorm,
+        DarkskyIcon::Tornado => Icon::DarkskyTornado,
+        DarkskyIcon::Wind => Icon::DarkskyWind,
+    }
 }
