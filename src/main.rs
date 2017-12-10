@@ -40,6 +40,10 @@ fn main() {
     };
 }
 
+pub fn print_weather(weather: darksky::models::Forecast) {
+    println!("{:#?}", weather);
+}
+
 fn run(config: Config) -> Result<(), Box<std::error::Error>> {
     let mut core = Core::new()?;
     let handle = core.handle();
@@ -55,7 +59,7 @@ fn run(config: Config) -> Result<(), Box<std::error::Error>> {
                 .language(Language::En)
         })
         .and_then(move |f| {
-            println!("{:#?}", f);
+            print_weather(f);
             Ok(())
         });
 
