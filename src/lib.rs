@@ -76,13 +76,14 @@ pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
 
     if m.is_present("i3") {
         println!(
-            "<span font_desc='Weather Icons'>{icon}</span> {summary}: {current_temp}{degrees} ({feels_like_temp}{degrees})",
+            "<span font_desc='Weather Icons'>{icon}</span> {summary}: \
+             {current_temp}{degrees} ({feels_like_temp}{degrees})",
             icon = icon,
             degrees = degrees,
             summary = summary,
             current_temp = current_temp,
             feels_like_temp = feels_like_temp
-            );
+        );
     } else {
         println!(
             "{summary}: {current_temp}{degrees} ({feels_like_temp}{degrees})",
