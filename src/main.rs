@@ -5,6 +5,8 @@ extern crate hyper;
 extern crate hyper_tls;
 extern crate tokio_core;
 
+extern crate serde_json;
+
 use darksky::{Block, DarkskyHyperRequester, Language, Unit};
 use futures::Future;
 use hyper::client::Client;
@@ -12,8 +14,10 @@ use hyper_tls::HttpsConnector;
 use std::env;
 use tokio_core::reactor::Core;
 
+mod local;
+
 #[derive(Debug)]
-struct Config {
+pub struct Config {
     token: String,
     lat: f64,
     lon: f64,
@@ -34,7 +38,11 @@ fn main() {
 
     let config = Config::new();
 
-    if let Err(e) = run(config) {
+    if let Err(e) = if env::var("DARKSKY_LOCAL").is_ok() {
+        local::run()
+    } else {
+        run(config)
+    } {
         eprintln!("{}", e);
         std::process::exit(1);
     };
