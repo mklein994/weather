@@ -69,12 +69,12 @@ pub fn print_weather(weather: darksky::models::Forecast) {
     let current_temp = c.temperature.unwrap();
     let feels_like_temp = c.apparent_temperature.unwrap();
 
-    let unit = Icon::Celsius;
+    let degrees = "°";
 
     println!(
-        "<span font_desc='Weather Icons'>{icon}</span> {summary}: {current_temp}<span font_desc='Weather Icons'>{unit}</span> ({feels_like_temp}<span font_desc='Weather Icons'>{unit}</span>)",
+        "<span font_desc='Weather Icons'>{icon}</span> {summary}: {current_temp}{degrees} ({feels_like_temp}{degrees})",
         icon = icon,
-        unit = unit,
+        degrees = degrees,
         summary = summary,
         current_temp = current_temp,
         feels_like_temp = feels_like_temp
