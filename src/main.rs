@@ -61,7 +61,24 @@ fn main() {
 }
 
 pub fn print_weather(weather: darksky::models::Forecast) {
-    println!("{:#?}", weather);
+    let c = weather.currently.unwrap();
+
+    let icon = get_icon(&c.icon.unwrap());
+
+    let summary = c.summary.unwrap();
+    let current_temp = c.temperature.unwrap();
+    let feels_like_temp = c.apparent_temperature.unwrap();
+
+    let unit = Icon::Celsius;
+
+    println!(
+        "<span font_desc='Weather Icons'>{icon}</span> {summary}: {current_temp}<span font_desc='Weather Icons'>{unit}</span> ({feels_like_temp}<span font_desc='Weather Icons'>{unit}</span>)",
+        icon = icon,
+        unit = unit,
+        summary = summary,
+        current_temp = current_temp,
+        feels_like_temp = feels_like_temp
+    );
 }
 
 fn run(config: Config) -> Result<(), Box<std::error::Error>> {
