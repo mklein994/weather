@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate clap;
 extern crate darksky;
 extern crate dotenv;
 extern crate futures;
@@ -8,6 +10,7 @@ extern crate weather_icons;
 
 extern crate serde_json;
 
+use clap::ArgMatches;
 use darksky::{Block, DarkskyHyperRequester, Language, Unit};
 use futures::Future;
 use hyper::client::Client;
@@ -18,6 +21,7 @@ use tokio_core::reactor::Core;
 use darksky::models::Icon as DarkskyIcon;
 use weather_icons::Icon;
 
+mod app;
 mod local;
 
 #[derive(Debug)]
@@ -49,18 +53,19 @@ fn main() {
     });
 
     let config = Config::new();
+    let matches = app::build_cli();
 
     if let Err(e) = if env::var("DARKSKY_LOCAL").is_ok() {
-        local::run()
+        local::run(matches)
     } else {
-        run(config)
+        run(config, matches)
     } {
         eprintln!("{}", e);
         std::process::exit(1);
     };
 }
 
-pub fn print_weather(weather: darksky::models::Forecast) {
+pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
     let c = weather.currently.unwrap();
 
     let icon = get_icon(&c.icon.unwrap());
@@ -71,17 +76,27 @@ pub fn print_weather(weather: darksky::models::Forecast) {
 
     let degrees = "°";
 
-    println!(
-        "<span font_desc='Weather Icons'>{icon}</span> {summary}: {current_temp}{degrees} ({feels_like_temp}{degrees})",
-        icon = icon,
-        degrees = degrees,
-        summary = summary,
-        current_temp = current_temp,
-        feels_like_temp = feels_like_temp
-    );
+    if m.is_present("i3") {
+        println!(
+            "<span font_desc='Weather Icons'>{icon}</span> {summary}: {current_temp}{degrees} ({feels_like_temp}{degrees})",
+            icon = icon,
+            degrees = degrees,
+            summary = summary,
+            current_temp = current_temp,
+            feels_like_temp = feels_like_temp
+            );
+    } else {
+        println!(
+            "{summary}: {current_temp}{degrees} ({feels_like_temp}{degrees})",
+            summary = summary,
+            degrees = degrees,
+            current_temp = current_temp,
+            feels_like_temp = feels_like_temp
+        );
+    }
 }
 
-fn run(config: Config) -> Result<(), Box<std::error::Error>> {
+fn run(config: Config, matches: ArgMatches) -> Result<(), Box<std::error::Error>> {
     let mut core = Core::new()?;
     let handle = core.handle();
 
@@ -95,8 +110,8 @@ fn run(config: Config) -> Result<(), Box<std::error::Error>> {
                 .unit(Unit::Auto)
                 .language(Language::En)
         })
-        .and_then(move |f| {
-            print_weather(f);
+        .and_then(move |weather| {
+            print_weather(matches, weather);
             Ok(())
         });
 
