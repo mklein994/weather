@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Matthew Klein <mklein994@gmail.com>"]
 
 [dependencies]
+clap = "~2.29.0"
 darksky = "0.7.0"
 dotenv = "0.10.1"
 futures = "0.1.17"
