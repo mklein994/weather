@@ -90,10 +90,10 @@ pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
     );
 
     let mut output = format!(
-        "{summary}: {current_temp}{degrees} ({feels_like_temp}{degrees})",
-        summary = c.summary.unwrap(),
+        "{current_temp}{degrees} {summary}. ({feels_like_temp}{degrees})",
         degrees = degrees,
         current_temp = c.temperature.unwrap(),
+        summary = c.summary.unwrap(),
         feels_like_temp = c.apparent_temperature.unwrap()
     );
 
