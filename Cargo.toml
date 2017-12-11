@@ -3,6 +3,10 @@ name = "weather"
 version = "0.1.0"
 authors = ["Matthew Klein <mklein994@gmail.com>"]
 
+[features]
+default = []
+local = ["serde_json"]
+
 [dependencies]
 clap = "~2.29.0"
 darksky = "0.7.0"
@@ -13,4 +17,4 @@ hyper-tls = "0.1.2"
 tokio-core = "0.1.10"
 weather_icons = "0.1.0"
 
-serde_json = "1.0.8"
+serde_json = { version = "1.0.8", optional = true }

@@ -7,6 +7,7 @@ extern crate hyper_tls;
 extern crate tokio_core;
 extern crate weather_icons;
 
+#[cfg(feature = "local")]
 extern crate serde_json;
 
 use clap::ArgMatches;
@@ -16,11 +17,14 @@ use hyper::client::Client;
 use hyper_tls::HttpsConnector;
 use std::env;
 use tokio_core::reactor::Core;
+#[cfg(feature = "local")]
+pub use local::run;
 
 use darksky::models::Icon as DarkskyIcon;
 use weather_icons::Icon;
 
 pub mod app;
+#[cfg(feature = "local")]
 pub mod local;
 
 #[derive(Debug)]
@@ -40,7 +44,9 @@ impl Config {
     }
 }
 
+#[cfg(not(feature = "local"))]
 pub fn run(config: Config, matches: ArgMatches) -> Result<(), Box<std::error::Error>> {
+    println!("using remote");
     let mut core = Core::new()?;
     let handle = core.handle();
 

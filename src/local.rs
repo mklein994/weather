@@ -4,8 +4,10 @@ use serde_json;
 use std::env;
 use std::fs::File;
 use std::io::prelude::*;
+use super::Config;
 
-pub fn run(matches: ArgMatches) -> Result<(), Box<::std::error::Error>> {
+pub fn run(_config: Config, matches: ArgMatches) -> Result<(), Box<::std::error::Error>> {
+    println!("using local");
     let mut contents = String::new();
     let path = env::var("DARKSKY_LOCAL").unwrap();
     File::open(path).and_then(|mut file| {
