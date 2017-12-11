@@ -76,12 +76,6 @@ pub fn run(config: Config, matches: ArgMatches) -> Result<(), Box<std::error::Er
 pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
     let c = weather.currently.unwrap();
 
-    //let icon = get_icon(&c.icon.unwrap());
-
-    //let summary = c.summary.unwrap();
-    //let current_temp = c.temperature.unwrap();
-    //let feels_like_temp = c.apparent_temperature.unwrap();
-
     let degrees = "°";
 
     let icon_string = format!(
