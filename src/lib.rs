@@ -75,6 +75,8 @@ pub fn run(config: Config, matches: ArgMatches) -> Result<(), Box<std::error::Er
 
 pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
     let c = weather.currently.unwrap();
+    let d = weather.daily.unwrap();
+    let h = weather.hourly.unwrap();
 
     let degrees = "°";
 
@@ -98,9 +100,6 @@ pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
     println!("{}", output);
 
     if m.is_present("long") {
-        let h = weather.hourly.unwrap();
-        let d = weather.daily.unwrap();
-
         println!("{}", h.summary.unwrap());
         println!("{}", d.summary.unwrap());
     }
