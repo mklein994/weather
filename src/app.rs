@@ -10,5 +10,11 @@ pub fn build_cli<'a>() -> ArgMatches<'a> {
                 .long("i3blocks")
                 .help("format output for i3blocks pango."),
         )
+        .arg(
+            Arg::with_name("long")
+                .short("l")
+                .long("long")
+                .help("show detailed output"),
+        )
         .get_matches()
 }
