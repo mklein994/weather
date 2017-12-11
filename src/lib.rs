@@ -86,9 +86,9 @@ pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
     let mut output = format!(
         "{current_temp}{degrees} {summary}. ({feels_like_temp}{degrees})",
         degrees = degrees,
-        current_temp = c.temperature.unwrap(),
+        current_temp = c.temperature.unwrap().round(),
         summary = c.summary.unwrap(),
-        feels_like_temp = c.apparent_temperature.unwrap()
+        feels_like_temp = c.apparent_temperature.unwrap().round()
     );
 
     if m.is_present("i3") {
