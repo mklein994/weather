@@ -1,10 +1,13 @@
 extern crate dotenv;
+extern crate env_logger;
 extern crate weather;
 
 use std::env;
 use weather::{app, Config};
 
 fn main() {
+    env_logger::init().expect("failed to initialize logger");
+
     dotenv::from_path(
         env::home_dir()
             .unwrap()

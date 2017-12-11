@@ -1,9 +1,12 @@
 #[macro_use]
 extern crate clap;
 extern crate darksky;
+extern crate env_logger;
 extern crate futures;
 extern crate hyper;
 extern crate hyper_tls;
+#[macro_use]
+extern crate log;
 extern crate tokio_core;
 extern crate weather_icons;
 
@@ -46,7 +49,8 @@ impl Config {
 
 #[cfg(not(feature = "local"))]
 pub fn run(config: Config, matches: ArgMatches) -> Result<(), Box<std::error::Error>> {
-    println!("using remote");
+    info!("using remote");
+
     let mut core = Core::new()?;
     let handle = core.handle();
 

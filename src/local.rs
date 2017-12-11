@@ -7,7 +7,7 @@ use std::io::prelude::*;
 use super::Config;
 
 pub fn run(_config: Config, matches: ArgMatches) -> Result<(), Box<::std::error::Error>> {
-    println!("using local");
+    info!("using local");
     let mut contents = String::new();
     let path = env::var("DARKSKY_LOCAL").unwrap();
     File::open(path).and_then(|mut file| {
