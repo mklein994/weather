@@ -97,10 +97,12 @@ pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
 
     println!("{}", output);
 
-    let h = weather.hourly.unwrap();
-
     if m.is_present("long") {
+        let h = weather.hourly.unwrap();
+        let d = weather.daily.unwrap();
+
         println!("{}", h.summary.unwrap());
+        println!("{}", d.summary.unwrap());
     }
 }
 
