@@ -80,11 +80,6 @@ pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
 
     let degrees = "°";
 
-    let icon_string = format!(
-        "<span font_desc='Weather Icons'>{icon}</span>",
-        icon = get_icon(&c.icon.unwrap())
-    );
-
     let mut output = format!(
         "{current_temp}{degrees} {summary}. ({feels_like_temp}{degrees})",
         degrees = degrees,
@@ -94,7 +89,17 @@ pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
     );
 
     if m.is_present("i3") {
-        output = [icon_string, output].join(" ");
+        let icon_string = format!(
+            "<span font_desc='Weather Icons'>{icon}</span>",
+            icon = get_icon(&c.icon.unwrap())
+        );
+
+        let moon = format!(
+            "<span font_desc='Weather Icons'>{}</span>",
+            weather_icons::moon::phase(d.data.unwrap()[0].moon_phase.unwrap())
+        );
+
+        output = [icon_string, output, moon].join(" ");
     }
 
     println!("{}", output);
