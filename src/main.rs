@@ -11,10 +11,14 @@ fn main() {
     dotenv::from_path(
         env::home_dir()
             .unwrap()
-            .join(".config/weather/config")
+            .join(format!(".config/{}/config", env!("CARGO_PKG_NAME")))
             .as_path(),
     ).unwrap_or_else(|e| {
-        eprintln!("Error parsing config file ~/.config/weather/config: {}", e);
+        eprintln!(
+            "Error parsing config file ~/.config/{}/config: {}",
+            env!("CARGO_PKG_NAME"),
+            e
+        );
         std::process::exit(1);
     });
 
