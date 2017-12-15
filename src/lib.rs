@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate clap;
 extern crate darksky;
+extern crate drawille;
 extern crate env_logger;
 extern crate futures;
 extern crate hyper;
@@ -15,6 +16,7 @@ extern crate serde_json;
 
 use clap::ArgMatches;
 use darksky::{Block, DarkskyHyperRequester, Language, Unit};
+use drawille::Canvas;
 use futures::Future;
 use hyper::client::Client;
 use hyper_tls::HttpsConnector;
@@ -88,6 +90,9 @@ pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
         feels_like_temp = c.apparent_temperature.unwrap().round()
     );
 
+    let hourly_temperatures = get_hourly_temperature(h.data.unwrap());
+    let temperature_graph = graph(hourly_temperatures);
+
     if m.is_present("i3") {
         let icon_string = format!(
             "<span font_desc='Weather Icons'>{icon}</span>",
@@ -102,7 +107,7 @@ pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
         output = [icon_string, output, moon].join(" ");
     }
 
-    println!("{}", output);
+    println!("{} {}", temperature_graph, output);
 
     if m.is_present("long") {
         println!("{}", h.summary.unwrap());
@@ -126,4 +131,78 @@ fn get_icon(icon: &DarkskyIcon) -> Icon {
         DarkskyIcon::Tornado => Icon::DarkskyTornado,
         DarkskyIcon::Wind => Icon::DarkskyWind,
     }
+}
+
+fn get_hourly_temperature(datapoints: Vec<darksky::models::Datapoint>) -> Vec<Option<f32>> {
+    let mut wind = Vec::with_capacity(64);
+
+    for h in datapoints {
+        wind.push(h.temperature.map_or(None, |t| Some(t as f32)));
+    }
+
+    info!("capacity: {:?}", wind.capacity());
+    wind
+}
+
+fn graph(datapoints: Vec<Option<f32>>) -> String {
+    let mut canvas = Canvas::new(datapoints.capacity() as u32, 3);
+    let mut debug_canvas = canvas.clone();
+
+    let max = datapoints
+        .iter()
+        .max_by(|a, b| a.unwrap().partial_cmp(&b.unwrap()).unwrap())
+        .unwrap()
+        .unwrap();
+    let min = datapoints
+        .iter()
+        .min_by(|a, b| a.unwrap().partial_cmp(&b.unwrap()).unwrap())
+        .unwrap()
+        .unwrap();
+
+    // A braille character (eg \u28FF (⣿)), can have up to 8 dots, and each are numbered.
+    // Here's the hex table:
+    //  1 **  8
+    //  2 ** 10
+    //  3 ** 20
+    // 40 ** 80
+    //
+    // The Unicode value is calculated by adding the sum of each part to 2800. For example,
+    //
+    // 0 *
+    // * 0
+    // 0 0
+    // 0 0
+    //
+    // is calculated as 2 + 8 + 2800 = \u280A.
+    //
+    // Including blanks to count as the maximum and minimum, the entire range looks like this:
+    // '⠀⡠⠊⠀'
+    //TODO: fix documentation.
+    for (i, d) in datapoints.iter().enumerate() {
+        let raw_amount;
+        let amount;
+        if d.is_none() {
+            raw_amount = min.round() as u32;
+            amount = 4;
+        } else {
+            raw_amount = ((max.abs() + min.abs()) - (d.unwrap() + min.abs())).round() as u32;
+            // (a, b):     min/max of range
+            // (min, max): min/max from list
+            // x:          some value from the list
+            //
+            //        (b-a)(x - min)
+            // f(x) = -------------- + a
+            //          max - min
+            amount = 4 - (((5. - 0.) * (d.unwrap() - min)) / (max - min) + 0.).round() as i32;
+        };
+
+        debug_canvas.set(i as u32, raw_amount);
+        debug_canvas.set(i as u32, max.abs().round() as u32);
+
+        if amount >= 0 && amount <= 3 {
+            canvas.set(i as u32, amount as u32);
+        }
+    }
+    info!("debug_canvas:\n{}", debug_canvas.frame());
+    canvas.frame()
 }
