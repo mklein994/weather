@@ -8,6 +8,7 @@ extern crate hyper;
 extern crate hyper_tls;
 #[macro_use]
 extern crate log;
+extern crate spark;
 extern crate tokio_core;
 extern crate weather_icons;
 
