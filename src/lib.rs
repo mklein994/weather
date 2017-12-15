@@ -92,7 +92,8 @@ pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
     );
 
     let hourly_temperatures = get_hourly_temperature(h.data.unwrap());
-    let temperature_graph = graph(hourly_temperatures);
+    let temperature_braille_graph = braille_graph(&hourly_temperatures);
+    let temperature_spark_graph = spark_graph(&hourly_temperatures);
 
     if m.is_present("i3") {
         let icon_string = format!(
@@ -108,11 +109,12 @@ pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
         output = [icon_string, output, moon].join(" ");
     }
 
-    println!("{} {}", temperature_graph, output);
+    println!("{}", output);
+    println!("{}\n{}", temperature_braille_graph, temperature_spark_graph);
 
     if m.is_present("long") {
-        println!("{}", h.summary.unwrap());
-        println!("{}", d.summary.unwrap());
+        println!("{}", h.summary.unwrap_or("no hourly summary".to_owned()));
+        println!("{}", d.summary.unwrap_or("no daily summary".to_owned()));
     }
 }
 
@@ -145,7 +147,14 @@ fn get_hourly_temperature(datapoints: Vec<darksky::models::Datapoint>) -> Vec<Op
     wind
 }
 
-fn graph(datapoints: Vec<Option<f32>>) -> String {
+fn spark_graph(datapoints: &Vec<Option<f32>>) -> String {
+    let graph: Vec<f32> = datapoints
+        .iter()
+        .map(|d| d.unwrap_or(0.0)).collect();
+    spark::graph(graph.as_slice())
+}
+
+fn braille_graph(datapoints: &Vec<Option<f32>>) -> String {
     let mut canvas = Canvas::new(datapoints.capacity() as u32, 3);
     let mut debug_canvas = canvas.clone();
 
