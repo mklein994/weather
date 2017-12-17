@@ -76,7 +76,7 @@ pub fn run(config: Config, matches: ArgMatches) -> Result<(), Box<std::error::Er
     Ok(())
 }
 
-pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
+pub fn print_weather(matches: ArgMatches, weather: darksky::models::Forecast) {
     let c = weather.currently.unwrap();
     let d = weather.daily.unwrap();
     let h = weather.hourly.unwrap();
@@ -95,7 +95,7 @@ pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
     let temperature_braille_graph = braille_graph(&hourly_temperatures);
     let temperature_spark_graph = spark_graph(&hourly_temperatures);
 
-    if m.is_present("i3") {
+    if matches.is_present("i3") {
         let icon_string = format!(
             "<span font_desc='Weather Icons'>{icon}</span>",
             icon = get_icon(&c.icon.unwrap())
@@ -112,7 +112,7 @@ pub fn print_weather(m: ArgMatches, weather: darksky::models::Forecast) {
     println!("{}", output);
     println!("{}\n{}", temperature_braille_graph, temperature_spark_graph);
 
-    if m.is_present("long") {
+    if matches.is_present("long") {
         println!("{}", h.summary.unwrap_or("no hourly summary".to_owned()));
         println!("{}", d.summary.unwrap_or("no daily summary".to_owned()));
     }
