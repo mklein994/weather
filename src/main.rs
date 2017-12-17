@@ -26,7 +26,7 @@ fn main() {
     let config = Config::new();
     let matches = app::build_cli();
 
-    if let Err(e) = weather::run(config, matches) {
+    if let Err(e) = weather::run(&config, matches) {
         eprintln!("{}", e);
         std::process::exit(1);
     };

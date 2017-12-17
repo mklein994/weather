@@ -33,7 +33,7 @@ pub mod app;
 #[cfg(feature = "local")]
 pub mod local;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Config {
     token: String,
     lat: f64,
@@ -51,7 +51,7 @@ impl Config {
 }
 
 #[cfg(not(feature = "local"))]
-pub fn run(config: Config, matches: ArgMatches) -> Result<(), Box<std::error::Error>> {
+pub fn run(config: &Config, matches: ArgMatches) -> Result<(), Box<std::error::Error>> {
     info!("using remote");
 
     let mut core = Core::new()?;
@@ -68,7 +68,7 @@ pub fn run(config: Config, matches: ArgMatches) -> Result<(), Box<std::error::Er
                 .language(Language::En)
         })
         .and_then(move |weather| {
-            print_weather(matches, weather);
+            print_weather(&matches, weather);
             Ok(())
         });
 
@@ -76,7 +76,7 @@ pub fn run(config: Config, matches: ArgMatches) -> Result<(), Box<std::error::Er
     Ok(())
 }
 
-pub fn print_weather(matches: ArgMatches, weather: darksky::models::Forecast) {
+pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
     let c = weather.currently.unwrap();
     let d = weather.daily.unwrap();
     let h = weather.hourly.unwrap();
@@ -113,8 +113,8 @@ pub fn print_weather(matches: ArgMatches, weather: darksky::models::Forecast) {
     println!("{}\n{}", temperature_braille_graph, temperature_spark_graph);
 
     if matches.is_present("long") {
-        println!("{}", h.summary.unwrap_or("no hourly summary".to_owned()));
-        println!("{}", d.summary.unwrap_or("no daily summary".to_owned()));
+        println!("{}", h.summary.unwrap_or_else(|| "no hourly summary".to_owned()));
+        println!("{}", d.summary.unwrap_or_else(|| "no daily summary".to_owned()));
     }
 }
 
@@ -140,14 +140,14 @@ fn get_hourly_temperature(datapoints: Vec<darksky::models::Datapoint>) -> Vec<Op
     let mut wind = Vec::with_capacity(64);
 
     for h in datapoints {
-        wind.push(h.temperature.map_or(None, |t| Some(t as f32)));
+        wind.push(h.temperature.and_then(|t| Some(t as f32)));
     }
 
     info!("capacity: {:?}", wind.capacity());
     wind
 }
 
-fn spark_graph(datapoints: &Vec<Option<f32>>) -> String {
+fn spark_graph(datapoints: &[Option<f32>]) -> String {
     let graph: Vec<f32> = datapoints
         .iter()
         .map(|d| d.unwrap_or(0.0)).collect();
