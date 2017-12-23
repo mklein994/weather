@@ -4,34 +4,94 @@ extern crate darksky;
 extern crate drawille;
 extern crate env_logger;
 extern crate futures;
-extern crate hyper;
-extern crate hyper_tls;
 #[macro_use]
 extern crate log;
+extern crate reqwest;
+extern crate serde_json;
 extern crate spark;
-extern crate tokio_core;
 extern crate weather_icons;
 
-#[cfg(feature = "local")]
-extern crate serde_json;
-
 use clap::ArgMatches;
-use darksky::{Block, DarkskyHyperRequester, Language, Unit};
+use darksky::{Block, DarkskyReqwestRequester, Language, Unit};
 use drawille::Canvas;
-use futures::Future;
-use hyper::client::Client;
-use hyper_tls::HttpsConnector;
+use reqwest::Client;
+use error::WeatherError;
 use std::env;
-use tokio_core::reactor::Core;
-#[cfg(feature = "local")]
-pub use local::run;
+use std::fs::File;
+use std::io::prelude::*;
 
 use darksky::models::Icon as DarkskyIcon;
 use weather_icons::Icon;
 
+type Result<T> = std::result::Result<T, WeatherError>;
+
+mod error {
+    use darksky;
+    use serde_json;
+    use std::error;
+    use std::fmt;
+    use std::io;
+
+    #[derive(Debug)]
+    pub enum WeatherError {
+        Darksky(darksky::Error),
+        Io(io::Error),
+        Json(serde_json::Error),
+    }
+
+    impl fmt::Display for WeatherError {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            match *self {
+                WeatherError::Darksky(ref err) => write!(f, "Darksky error: {}", err),
+                WeatherError::Io(ref err) => write!(f, "IO error: {}", err),
+                WeatherError::Json(ref err) => write!(f, "Serde JSON error: {}", err),
+            }
+        }
+    }
+
+    impl error::Error for WeatherError {
+        fn description(&self) -> &str {
+            match *self {
+                WeatherError::Darksky(ref err) => err.description(),
+                WeatherError::Io(ref err) => err.description(),
+                WeatherError::Json(ref err) => err.description(),
+            }
+        }
+
+        fn cause(&self) -> Option<&error::Error> {
+            match *self {
+                WeatherError::Darksky(ref err) => Some(err),
+                WeatherError::Io(ref err) => Some(err),
+                WeatherError::Json(ref err) => Some(err),
+            }
+        }
+    }
+
+    impl From<darksky::Error> for WeatherError {
+        fn from(err: darksky::Error) -> Self {
+            WeatherError::Darksky(err)
+        }
+    }
+
+    impl From<io::Error> for WeatherError {
+        fn from(err: io::Error) -> Self {
+            WeatherError::Io(err)
+        }
+    }
+
+    impl From<serde_json::Error> for WeatherError {
+        fn from(err: serde_json::Error) -> Self {
+            use serde_json::error::Category;
+            match err.classify() {
+                Category::Io => WeatherError::Io(err.into()),
+                Category::Syntax | Category::Data | Category::Eof => WeatherError::Json(err),
+            }
+        }
+    }
+
+}
+
 pub mod app;
-#[cfg(feature = "local")]
-pub mod local;
 
 #[derive(Debug, Default)]
 pub struct Config {
@@ -50,36 +110,39 @@ impl Config {
     }
 }
 
-#[cfg(not(feature = "local"))]
-pub fn run(config: &Config, matches: ArgMatches) -> Result<(), Box<std::error::Error>> {
-    info!("using remote");
+pub fn run(config: &Config, matches: &ArgMatches) -> Result<()> {
+    let weather_data = get_weather(&config, &matches)?;
+    print_weather(matches, weather_data);
 
-    let mut core = Core::new()?;
-    let handle = core.handle();
-
-    let client = Client::configure()
-        .connector(HttpsConnector::new(4, &handle)?)
-        .build(&handle);
-
-    let work = client
-        .get_forecast_with_options(&config.token, config.lat, config.lon, |o| {
-            o.exclude(vec![Block::Minutely])
-                .unit(Unit::Auto)
-                .language(Language::En)
-        })
-        .and_then(move |weather| {
-            print_weather(&matches, weather);
-            Ok(())
-        });
-
-    core.run(work)?;
     Ok(())
+}
+
+fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models::Forecast> {
+    if matches.is_present("debug") {
+        let mut contents = String::new();
+        let path = env::var("DARKSKY_LOCAL").unwrap();
+        info!("using local file: {}", path);
+        let mut f = File::open(path)?;
+        f.read_to_string(&mut contents)?;
+        serde_json::from_str(&contents).map_err(WeatherError::Json)
+    } else {
+        let client = Client::new();
+        client
+            .get_forecast_with_options(&config.token, config.lat, config.lon, |o| {
+                o.exclude(vec![Block::Minutely])
+                    .unit(Unit::Auto)
+                    .language(Language::En)
+            })
+            .map_err(WeatherError::Darksky)
+    }
 }
 
 pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
     let c = weather.currently.unwrap();
     let d = weather.daily.unwrap();
     let h = weather.hourly.unwrap();
+
+    let hourly_data = h.data.unwrap();
 
     let degrees = "°";
 
@@ -91,9 +154,19 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
         feels_like_temp = c.apparent_temperature.unwrap().round()
     );
 
-    let hourly_temperatures = get_hourly_temperature(h.data.unwrap());
+    let hourly_temperatures = get_hourly_temperature(&hourly_data);
     let temperature_braille_graph = braille_graph(&hourly_temperatures);
     let temperature_spark_graph = spark_graph(&hourly_temperatures);
+    let mut hourly_pressures = get_hourly_pressure(&hourly_data);
+
+    debug!("before: {:?}", hourly_pressures);
+    hourly_pressures
+        .iter_mut()
+        .for_each(|pressure| *pressure = pressure.map((|p| p - 1000.0)));
+    debug!("after: {:?}", hourly_pressures);
+
+    let pressure_braille_graph = braille_graph(&hourly_pressures);
+    let pressure_spark_graph = spark_graph(&hourly_pressures);
 
     if matches.is_present("i3") {
         let icon_string = format!(
@@ -111,10 +184,17 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
 
     println!("{}", output);
     println!("{}\n{}", temperature_braille_graph, temperature_spark_graph);
+    println!("{}\n{}", pressure_braille_graph, pressure_spark_graph);
 
     if matches.is_present("long") {
-        println!("{}", h.summary.unwrap_or_else(|| "no hourly summary".to_owned()));
-        println!("{}", d.summary.unwrap_or_else(|| "no daily summary".to_owned()));
+        println!(
+            "{}",
+            h.summary.unwrap_or_else(|| "no hourly summary".to_owned())
+        );
+        println!(
+            "{}",
+            d.summary.unwrap_or_else(|| "no daily summary".to_owned())
+        );
     }
 }
 
@@ -136,21 +216,29 @@ fn get_icon(icon: &DarkskyIcon) -> Icon {
     }
 }
 
-fn get_hourly_temperature(datapoints: Vec<darksky::models::Datapoint>) -> Vec<Option<f32>> {
-    let mut wind = Vec::with_capacity(64);
+fn get_hourly_temperature(datapoints: &[darksky::models::Datapoint]) -> Vec<Option<f32>> {
+    let mut temperatures = Vec::with_capacity(64);
 
     for h in datapoints {
-        wind.push(h.temperature.and_then(|t| Some(t as f32)));
+        temperatures.push(h.temperature.and_then(|t| Some(t as f32)));
     }
 
-    info!("capacity: {:?}", wind.capacity());
-    wind
+    info!("capacity: {:?}", temperatures.capacity());
+    temperatures
 }
 
+fn get_hourly_pressure(datapoints: &[darksky::models::Datapoint]) -> Vec<Option<f32>> {
+    let mut pressures = Vec::with_capacity(64);
+
+    for h in datapoints {
+        pressures.push(h.pressure.and_then(|p| Some(p as f32)));
+    }
+
+    info!("capacity: {:?}", pressures.capacity());
+    pressures
+}
 fn spark_graph(datapoints: &[Option<f32>]) -> String {
-    let graph: Vec<f32> = datapoints
-        .iter()
-        .map(|d| d.unwrap_or(0.0)).collect();
+    let graph: Vec<f32> = datapoints.iter().map(|d| d.unwrap_or(0.0)).collect();
     spark::graph(graph.as_slice())
 }
 
@@ -214,5 +302,6 @@ fn braille_graph(datapoints: &Vec<Option<f32>>) -> String {
         }
     }
     info!("debug_canvas:\n{}", debug_canvas.frame());
+    debug!("max: {}, min: {}", max, min);
     canvas.frame()
 }

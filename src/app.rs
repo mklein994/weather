@@ -16,5 +16,15 @@ pub fn build_cli<'a>() -> ArgMatches<'a> {
                 .long("long")
                 .help("show detailed output"),
         )
+        .arg(
+            Arg::with_name("debug")
+                .short("D")
+                .long("debug")
+                .help("run with a local file")
+                .long_help(&format!(
+                    "run with a local file found in ~/.config/{}/config",
+                    env!("CARGO_PKG_NAME")
+                )),
+        )
         .get_matches()
 }
