@@ -8,6 +8,7 @@ extern crate log;
 extern crate reqwest;
 extern crate serde_json;
 extern crate spark;
+extern crate stats;
 extern crate weather_icons;
 
 use clap::ArgMatches;
@@ -152,9 +153,34 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
         feels_like_temp = c.apparent_temperature.unwrap().round()
     );
 
-    let hourly_pressures: Vec<Option<f64>> = hourly_data.iter().map(|d| d.pressure).collect();
+    let hourly_pressures: Vec<Option<f64>> = hourly_data
+        .iter()
+        .map(|d| {
+            debug!("pressure: {}", d.pressure.unwrap());
+            d.pressure
+        })
+        .collect();
+
+    let mut s = stats::OnlineStats::new();
+    for i in &hourly_pressures {
+        match *i {
+            Some(i) => s.add(i),
+            None => s.add_null(),
+        }
+        debug!("stddev: {}", s.stddev());
+    }
 
     let pressure_spark_graph = spark_graph(&hourly_pressures);
+
+    let daily_data = d.data.unwrap();
+    let daily_temperatures = daily_data.iter()
+        .map(|d| {
+            debug!("temp: {}", d.temperature_high.unwrap());
+             d.temperature_high
+        })
+        .collect::<Vec<Option<f64>>>();
+
+    let temperature_spark_graph = spark_graph(&daily_temperatures);
 
     if matches.is_present("i3") {
         let icon_string = format!(
@@ -164,7 +190,7 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
 
         let moon = format!(
             "<span font_desc='Weather Icons'>{}</span>",
-            weather_icons::moon::phase(d.data.unwrap()[0].moon_phase.unwrap())
+            weather_icons::moon::phase(daily_data[0].moon_phase.unwrap())
         );
 
         output = [icon_string, output, moon].join(" ");
@@ -172,6 +198,7 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
 
     println!("{}", output);
     println!("{}", pressure_spark_graph);
+    println!("{}", temperature_spark_graph);
 
     if matches.is_present("long") {
         println!(
