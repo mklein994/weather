@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate clap;
 extern crate darksky;
-extern crate drawille;
 extern crate env_logger;
 extern crate futures;
 #[macro_use]
@@ -13,7 +12,6 @@ extern crate weather_icons;
 
 use clap::ArgMatches;
 use darksky::{Block, DarkskyReqwestRequester, Language, Unit};
-use drawille::Canvas;
 use reqwest::Client;
 use error::WeatherError;
 use std::env;
@@ -154,18 +152,8 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
         feels_like_temp = c.apparent_temperature.unwrap().round()
     );
 
-    let hourly_temperatures = get_hourly_temperature(&hourly_data);
-    let temperature_braille_graph = braille_graph(&hourly_temperatures);
-    let temperature_spark_graph = spark_graph(&hourly_temperatures);
-    let mut hourly_pressures = get_hourly_pressure(&hourly_data);
+    let hourly_pressures: Vec<Option<f64>> = hourly_data.iter().map(|d| d.pressure).collect();
 
-    debug!("before: {:?}", hourly_pressures);
-    hourly_pressures
-        .iter_mut()
-        .for_each(|pressure| *pressure = pressure.map((|p| p - 1000.0)));
-    debug!("after: {:?}", hourly_pressures);
-
-    let pressure_braille_graph = braille_graph(&hourly_pressures);
     let pressure_spark_graph = spark_graph(&hourly_pressures);
 
     if matches.is_present("i3") {
@@ -183,8 +171,7 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
     }
 
     println!("{}", output);
-    println!("{}\n{}", temperature_braille_graph, temperature_spark_graph);
-    println!("{}\n{}", pressure_braille_graph, pressure_spark_graph);
+    println!("{}", pressure_spark_graph);
 
     if matches.is_present("long") {
         println!(
@@ -216,92 +203,6 @@ fn get_icon(icon: &DarkskyIcon) -> Icon {
     }
 }
 
-fn get_hourly_temperature(datapoints: &[darksky::models::Datapoint]) -> Vec<Option<f32>> {
-    let mut temperatures = Vec::with_capacity(64);
-
-    for h in datapoints {
-        temperatures.push(h.temperature.and_then(|t| Some(t as f32)));
-    }
-
-    info!("capacity: {:?}", temperatures.capacity());
-    temperatures
-}
-
-fn get_hourly_pressure(datapoints: &[darksky::models::Datapoint]) -> Vec<Option<f32>> {
-    let mut pressures = Vec::with_capacity(64);
-
-    for h in datapoints {
-        pressures.push(h.pressure.and_then(|p| Some(p as f32)));
-    }
-
-    info!("capacity: {:?}", pressures.capacity());
-    pressures
-}
-fn spark_graph(datapoints: &[Option<f32>]) -> String {
-    let graph: Vec<f32> = datapoints.iter().map(|d| d.unwrap_or(0.0)).collect();
-    spark::graph(graph.as_slice())
-}
-
-fn braille_graph(datapoints: &Vec<Option<f32>>) -> String {
-    let mut canvas = Canvas::new(datapoints.capacity() as u32, 3);
-    let mut debug_canvas = canvas.clone();
-
-    let max = datapoints
-        .iter()
-        .max_by(|a, b| a.unwrap().partial_cmp(&b.unwrap()).unwrap())
-        .unwrap()
-        .unwrap();
-    let min = datapoints
-        .iter()
-        .min_by(|a, b| a.unwrap().partial_cmp(&b.unwrap()).unwrap())
-        .unwrap()
-        .unwrap();
-
-    // A braille character (eg \u28FF (⣿)), can have up to 8 dots, and each are numbered.
-    // Here's the hex table:
-    //  1 **  8
-    //  2 ** 10
-    //  3 ** 20
-    // 40 ** 80
-    //
-    // The Unicode value is calculated by adding the sum of each part to 2800. For example,
-    //
-    // 0 *
-    // * 0
-    // 0 0
-    // 0 0
-    //
-    // is calculated as 2 + 8 + 2800 = \u280A.
-    //
-    // Including blanks to count as the maximum and minimum, the entire range looks like this:
-    // '⠀⡠⠊⠀'
-    //TODO: fix documentation.
-    for (i, d) in datapoints.iter().enumerate() {
-        let raw_amount;
-        let amount;
-        if d.is_none() {
-            raw_amount = min.round() as u32;
-            amount = 4;
-        } else {
-            raw_amount = ((max.abs() + min.abs()) - (d.unwrap() + min.abs())).round() as u32;
-            // (a, b):     min/max of range
-            // (min, max): min/max from list
-            // x:          some value from the list
-            //
-            //        (b-a)(x - min)
-            // f(x) = -------------- + a
-            //          max - min
-            amount = 4 - (((5. - 0.) * (d.unwrap() - min)) / (max - min) + 0.).round() as i32;
-        };
-
-        debug_canvas.set(i as u32, raw_amount);
-        debug_canvas.set(i as u32, max.abs().round() as u32);
-
-        if amount >= 0 && amount <= 3 {
-            canvas.set(i as u32, amount as u32);
-        }
-    }
-    info!("debug_canvas:\n{}", debug_canvas.frame());
-    debug!("max: {}, min: {}", max, min);
-    canvas.frame()
+fn spark_graph(datapoints: &[Option<f64>]) -> String {
+    spark::graph_opt(datapoints)
 }
