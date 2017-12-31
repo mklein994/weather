@@ -14,7 +14,7 @@ hyper-tls = "0.1.2"
 log = "0.4.1"
 reqwest = "0.8"
 serde_json = "1.0.8"
-spark = "0.4.0"
+spark = { version = "0.4.0", git = "https://github.com/mklein994/rust-spark" }
 streaming-stats = "0.1.28"
 tokio-core = "0.1.11"
 weather_icons = "0.1.0"
