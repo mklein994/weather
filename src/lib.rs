@@ -21,6 +21,7 @@ use std::io::prelude::*;
 
 use darksky::models::Icon as DarkskyIcon;
 use weather_icons::Icon;
+use weather_icons::moon::Color;
 
 type Result<T> = std::result::Result<T, WeatherError>;
 
@@ -190,7 +191,7 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
 
         let moon = format!(
             "<span font_desc='Weather Icons'>{}</span>",
-            weather_icons::moon::phase(daily_data[0].moon_phase.unwrap())
+            weather_icons::moon::phase(Color::Dark, daily_data[0].moon_phase.unwrap())
         );
 
         output = [
