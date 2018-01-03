@@ -191,7 +191,7 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
 
         let moon = format!(
             "<span font_desc='Weather Icons'>{}</span>",
-            weather_icons::moon::phase(Color::Dark, daily_data[0].moon_phase.unwrap())
+            weather_icons::moon::phase(Color::Primary, daily_data[0].moon_phase.unwrap())
         );
 
         output = [
