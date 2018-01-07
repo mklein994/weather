@@ -1,3 +1,4 @@
+extern crate chrono;
 #[macro_use]
 extern crate clap;
 extern crate darksky;
@@ -11,6 +12,7 @@ extern crate spark;
 extern crate stats;
 extern crate weather_icons;
 
+use chrono::NaiveDateTime;
 use clap::ArgMatches;
 use darksky::{Block, DarkskyReqwestRequester, Language, Unit};
 use reqwest::Client;
@@ -163,7 +165,13 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
                 Some(p) => s.add(p),
                 None => s.add_null(),
             };
-            debug!("pressure: {:?}", d.pressure);
+            debug!(
+                "pressure:\t{}\t{}",
+                NaiveDateTime::from_timestamp(d.time as i64, 0)
+                    .format("%c")
+                    .to_string(),
+                d.pressure.unwrap()
+            );
             stats.push(s);
             d.pressure
         })

@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Matthew Klein <mklein994@gmail.com>"]
 
 [dependencies]
+chrono = "0.4.0"
 clap = "~2.29.0"
 darksky = { version = "0.7.0", features = ["reqwest"], default-features = false }
 dotenv = "0.10.1"
