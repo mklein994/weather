@@ -190,7 +190,13 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
     let temperature_spark_graph = spark::graph_opt(&daily_temperatures);
 
     if matches.is_present("i3") {
-        let pressure_smooth_graph = spark::smooth_graph(&hourly_pressures);
+        let pressure_smooth_graph = graph(
+            false,
+            &hourly_pressures
+                .into_iter()
+                .filter_map(|p| Some(p.unwrap_or(0.)))
+                .collect::<Vec<f64>>(),
+        );
 
         let icon_string = format!(
             "<span font_desc='Weather Icons'>{icon}</span>",
@@ -203,7 +209,17 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
         );
 
         output = [
-            format!("<span font_desc='Graph'>{}</span>", pressure_smooth_graph),
+            // possible options:
+            //  dot-line medium  `spark dot-linemedium`
+            //  dot      small   `spark dotsmall`
+            //  dot      medium  `spark dotmedium`
+            //  bar      medium  `spark barmedium`
+            //  bar      narrow  `spark barnarrow`
+            //  bar      thin    `spark barthin`
+            format!(
+                "<span font_desc='spark dotsmall 11' font_features='calt'>{}</span>",
+                pressure_smooth_graph
+            ),
             icon_string,
             output,
             moon,
@@ -242,4 +258,39 @@ fn get_icon(icon: &DarkskyIcon) -> Icon {
         DarkskyIcon::Tornado => Icon::DarkskyTornado,
         DarkskyIcon::Wind => Icon::DarkskyWind,
     }
+}
+
+fn graph(is_dot_line: bool, values: &[f64]) -> String {
+    let mut min: f64 = std::f64::MAX;
+    let mut max: f64 = 0.;
+
+    for &i in values.iter() {
+        if i > max {
+            max = i;
+        }
+        if i < min {
+            min = i;
+        }
+    }
+
+    let ratio = if max == min {
+        1.0
+    } else {
+        let max_tick = if is_dot_line { 9 } else { 100 };
+
+        max_tick as f64 / (max - min)
+    };
+
+    format!(
+        "{}{{{}}}{}",
+        min,
+        values
+            .iter()
+            .cloned()
+            .map(|n| (n - min) * ratio)
+            .map(|n| n.floor().to_string())
+            .collect::<Vec<String>>()
+            .join(","),
+        max,
+    )
 }
