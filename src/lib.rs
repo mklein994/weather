@@ -3,7 +3,6 @@ extern crate chrono;
 extern crate clap;
 extern crate darksky;
 extern crate env_logger;
-extern crate futures;
 #[macro_use]
 extern crate log;
 extern crate reqwest;
