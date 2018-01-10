@@ -216,7 +216,7 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
             //  bar      narrow  `spark barnarrow`
             //  bar      thin    `spark barthin`
             format!(
-                "<span font_desc='spark dotsmall 11' font_features='calt'>{}</span>",
+                "<span font_desc='spark dotsmall 11'>{}</span>",
                 pressure_smooth_graph
             ),
             icon_string,
