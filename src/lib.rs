@@ -166,10 +166,7 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
             };
             debug!(
                 "pressure:\t{}\t{}",
-                chrono::Local
-                    .timestamp(d.time as i64, 0)
-                    .format("%c")
-                    .to_string(),
+                chrono::Local.timestamp(d.time as i64, 0).to_string(),
                 d.pressure.unwrap()
             );
             stats.push(s);
