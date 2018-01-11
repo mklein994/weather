@@ -782,7 +782,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "spark"
 version = "0.4.0"
-source = "git+https://github.com/mklein994/rust-spark#2d0169e28bf8b7e7b523927b3707af51ec31de08"
+source = "git+https://github.com/mklein994/rust-spark#cab2dcdf0e1a563a12b74c7581fc1eb3dbdaf642"
 dependencies = [
  "num 0.1.41 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
