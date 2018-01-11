@@ -187,7 +187,8 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
         })
         .collect();
 
-    let (daily_temperature_min, daily_temperature_max, temperature_spark_graph) = spark::graph_opt(&daily_temperatures);
+    let (daily_temperature_min, daily_temperature_max, temperature_spark_graph) =
+        spark::graph_opt(&daily_temperatures);
 
     if matches.is_present("i3") {
         let pressure_smooth_graph = graph(
@@ -229,8 +230,14 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
     println!("{}", output);
 
     if matches.is_present("long") {
-        println!("hourly pressure forecast:\n{} {} {}", pressure_min, pressure_spark_graph, pressure_max);
-        println!("temperatures this week:\n{} {} {}", daily_temperature_min, temperature_spark_graph, daily_temperature_max);
+        println!(
+            "hourly pressure forecast:\n{} {} {}",
+            pressure_min, pressure_spark_graph, pressure_max
+        );
+        println!(
+            "temperatures this week:\n{} {} {}",
+            daily_temperature_min, temperature_spark_graph, daily_temperature_max
+        );
         println!(
             "{}",
             h.summary.unwrap_or_else(|| "no hourly summary".to_owned())
