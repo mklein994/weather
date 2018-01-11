@@ -11,7 +11,7 @@ extern crate spark;
 extern crate stats;
 extern crate weather_icons;
 
-use chrono::NaiveDateTime;
+use chrono::TimeZone;
 use clap::ArgMatches;
 use darksky::{Block, DarkskyReqwestRequester, Language, Unit};
 use reqwest::Client;
@@ -166,7 +166,8 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
             };
             debug!(
                 "pressure:\t{}\t{}",
-                NaiveDateTime::from_timestamp(d.time as i64, 0)
+                chrono::Local
+                    .timestamp(d.time as i64, 0)
                     .format("%c")
                     .to_string(),
                 d.pressure.unwrap()
