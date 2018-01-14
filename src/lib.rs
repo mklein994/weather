@@ -14,8 +14,8 @@ extern crate weather_icons;
 use chrono::TimeZone;
 use clap::ArgMatches;
 use darksky::{Block, DarkskyReqwestRequester, Language, Unit};
-use reqwest::Client;
 use error::WeatherError;
+use reqwest::Client;
 use std::env;
 use std::fs::File;
 use std::io::prelude::*;
@@ -26,72 +26,8 @@ use weather_icons::moon::Color;
 
 type Result<T> = std::result::Result<T, WeatherError>;
 
-mod error {
-    use darksky;
-    use serde_json;
-    use std::error;
-    use std::fmt;
-    use std::io;
-
-    #[derive(Debug)]
-    pub enum WeatherError {
-        Darksky(darksky::Error),
-        Io(io::Error),
-        Json(serde_json::Error),
-    }
-
-    impl fmt::Display for WeatherError {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            match *self {
-                WeatherError::Darksky(ref err) => write!(f, "Darksky error: {}", err),
-                WeatherError::Io(ref err) => write!(f, "IO error: {}", err),
-                WeatherError::Json(ref err) => write!(f, "Serde JSON error: {}", err),
-            }
-        }
-    }
-
-    impl error::Error for WeatherError {
-        fn description(&self) -> &str {
-            match *self {
-                WeatherError::Darksky(ref err) => err.description(),
-                WeatherError::Io(ref err) => err.description(),
-                WeatherError::Json(ref err) => err.description(),
-            }
-        }
-
-        fn cause(&self) -> Option<&error::Error> {
-            match *self {
-                WeatherError::Darksky(ref err) => Some(err),
-                WeatherError::Io(ref err) => Some(err),
-                WeatherError::Json(ref err) => Some(err),
-            }
-        }
-    }
-
-    impl From<darksky::Error> for WeatherError {
-        fn from(err: darksky::Error) -> Self {
-            WeatherError::Darksky(err)
-        }
-    }
-
-    impl From<io::Error> for WeatherError {
-        fn from(err: io::Error) -> Self {
-            WeatherError::Io(err)
-        }
-    }
-
-    impl From<serde_json::Error> for WeatherError {
-        fn from(err: serde_json::Error) -> Self {
-            use serde_json::error::Category;
-            match err.classify() {
-                Category::Io => WeatherError::Io(err.into()),
-                Category::Syntax | Category::Data | Category::Eof => WeatherError::Json(err),
-            }
-        }
-    }
-}
-
 pub mod app;
+pub mod error;
 
 #[derive(Debug, Default)]
 pub struct Config {
