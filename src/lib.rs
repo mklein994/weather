@@ -1,3 +1,4 @@
+extern crate ansi_term;
 extern crate chrono;
 #[macro_use]
 extern crate clap;
@@ -23,11 +24,13 @@ use std::io::prelude::*;
 use darksky::models::Icon as DarkskyIcon;
 use weather_icons::Icon;
 use weather_icons::moon::Color;
+use graph::{Graph, SparkFont, Sparkline};
 
 type Result<T> = std::result::Result<T, WeatherError>;
 
 pub mod app;
 pub mod error;
+pub mod graph;
 
 #[derive(Debug, Default)]
 pub struct Config {
@@ -90,6 +93,17 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
         summary = c.summary.unwrap(),
         feels_like_temp = c.apparent_temperature.unwrap().round()
     );
+
+    let pressures: Vec<Option<f64>> = hourly_data.iter().map(|d| d.pressure).collect();
+    let pressure_spark_graph = Sparkline::new(&pressures)
+        .with_highlight(2, (127, 255, 0, 0.75))
+        .draw();
+    let pressure_font_graph = SparkFont::new(
+        pressures.iter().map(|p| p.unwrap_or_else(|| 0.)).collect(),
+    ).with_highlight(2, (127, 255, 0, 0.75))
+        .draw();
+    debug!("pressure_spark_graph: {}", pressure_spark_graph);
+    debug!("pressure_font_graph: {}", pressure_font_graph);
 
     let mut stats: Vec<stats::OnlineStats> = Vec::new();
     let mut s = stats::OnlineStats::new();
