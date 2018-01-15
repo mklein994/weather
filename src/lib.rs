@@ -6,6 +6,7 @@ extern crate darksky;
 extern crate env_logger;
 #[macro_use]
 extern crate log;
+extern crate read_color;
 extern crate reqwest;
 extern crate serde_json;
 extern crate spark;

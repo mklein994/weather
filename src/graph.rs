@@ -1,4 +1,5 @@
 use ansi_term::{Colour, Style};
+use read_color;
 use std::fmt;
 
 pub trait Graph {
