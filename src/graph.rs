@@ -1,23 +1,25 @@
 use ansi_term::{Colour, Style};
-use read_color;
 use std::fmt;
 
-pub trait Graph {
+use color::Color;
+
+pub trait Graph<'a> {
     fn draw(&self) -> String;
-    fn with_highlight(&mut self, position: usize, color: (u8, u8, u8, f64)) -> &mut Self;
+    fn with_highlight(&mut self, position: usize, fg_color: &'a Color, bg_color: &'a Color) -> &mut Self;
 }
 
-pub struct Highlight {
+pub struct Highlight<'a> {
     position: usize,
-    color: (u8, u8, u8, f64),
+    fg_color: &'a Color,
+    bg_color: &'a Color,
 }
 
-pub struct Sparkline {
+pub struct Sparkline<'a> {
     values: Vec<Option<f64>>,
-    highlight: Option<Highlight>,
+    highlight: Option<Highlight<'a>>,
 }
 
-impl Sparkline {
+impl<'a> Sparkline<'a> {
     pub fn new(values: &[Option<f64>]) -> Self {
         Sparkline {
             values: values.clone().to_vec(),
@@ -26,9 +28,9 @@ impl Sparkline {
     }
 }
 
-impl Graph for Sparkline {
-    fn with_highlight(&mut self, position: usize, color: (u8, u8, u8, f64)) -> &mut Self {
-        self.highlight = Some(Highlight { position, color });
+impl<'a> Graph<'a> for Sparkline<'a> {
+    fn with_highlight(&mut self, position: usize, fg_color: &'a Color, bg_color: &'a Color) -> &mut Self {
+        self.highlight = Some(Highlight { position, fg_color, bg_color });
         self
     }
 
@@ -69,7 +71,8 @@ impl Graph for Sparkline {
 
         if let Some(ref h) = self.highlight {
             graph[h.position] = Style::default()
-                .on(Colour::RGB(h.color.0, h.color.1, h.color.2))
+                .fg(Colour::RGB(h.fg_color.red, h.fg_color.green, h.fg_color.blue))
+                .on(Colour::RGB(h.bg_color.red, h.bg_color.green, h.bg_color.blue))
                 .paint(graph[h.position].clone())
                 .to_string();
         }
@@ -78,9 +81,9 @@ impl Graph for Sparkline {
     }
 }
 
-pub struct SparkFont {
+pub struct SparkFont<'a> {
     values: Vec<f64>,
-    highlight: Option<Highlight>,
+    highlight: Option<Highlight<'a>>,
     font: FontType,
 }
 
@@ -113,7 +116,7 @@ impl fmt::Display for FontType {
     }
 }
 
-impl SparkFont {
+impl<'a> SparkFont<'a> {
     pub fn new(values: Vec<f64>) -> Self {
         SparkFont {
             values,
@@ -128,9 +131,9 @@ impl SparkFont {
     }
 }
 
-impl Graph for SparkFont {
-    fn with_highlight(&mut self, position: usize, color: (u8, u8, u8, f64)) -> &mut Self {
-        self.highlight = Some(Highlight { position, color });
+impl<'a> Graph<'a> for SparkFont<'a> {
+    fn with_highlight(&mut self, position: usize, fg_color: &'a Color, bg_color: &'a Color) -> &mut Self {
+        self.highlight = Some(Highlight { position, fg_color, bg_color });
         self
     }
 
@@ -164,11 +167,9 @@ impl Graph for SparkFont {
 
         if let Some(ref h) = self.highlight {
             graph[h.position] = format!(
-                "<span background='rgba({},{},{},{})'>{}</span>",
-                h.color.0,
-                h.color.1,
-                h.color.2,
-                h.color.3,
+                "<span background='{}' foreground='{}'>{}</span>",
+                h.bg_color.hex(),
+                h.fg_color.hex(),
                 graph[h.position].clone()
             );
         }

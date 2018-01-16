@@ -6,15 +6,15 @@ extern crate darksky;
 extern crate env_logger;
 #[macro_use]
 extern crate log;
-extern crate read_color;
 extern crate reqwest;
 extern crate serde_json;
 extern crate spark;
 extern crate stats;
 extern crate weather_icons;
 
-use chrono::TimeZone;
+use chrono::{DateTime, Local, Timelike, TimeZone};
 use clap::ArgMatches;
+use darksky::models::Icon as DarkskyIcon;
 use darksky::{Block, DarkskyReqwestRequester, Language, Unit};
 use error::WeatherError;
 use reqwest::Client;
@@ -22,14 +22,14 @@ use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 
-use darksky::models::Icon as DarkskyIcon;
-use weather_icons::Icon;
-use weather_icons::moon::Color;
+use color::Color;
 use graph::{Graph, SparkFont, Sparkline};
+use weather_icons::{moon, Icon};
 
 type Result<T> = std::result::Result<T, WeatherError>;
 
 pub mod app;
+pub mod color;
 pub mod error;
 pub mod graph;
 
@@ -38,6 +38,8 @@ pub struct Config {
     token: String,
     lat: f64,
     lon: f64,
+    bg_color: Color,
+    fg_color: Color,
 }
 
 impl Config {
@@ -46,13 +48,15 @@ impl Config {
             token: env::var("DARKSKY_KEY").unwrap(),
             lat: env::var("DARKSKY_LAT").unwrap().parse::<f64>().unwrap(),
             lon: env::var("DARKSKY_LON").unwrap().parse::<f64>().unwrap(),
+            bg_color: env::var("DARKSKY_BACKGROUND_COLOR").unwrap().parse::<Color>().unwrap(),
+            fg_color: env::var("DARKSKY_FOREGROUND_COLOR").unwrap().parse::<Color>().unwrap(),
         }
     }
 }
 
 pub fn run(config: &Config, matches: &ArgMatches) -> Result<()> {
     let weather_data = get_weather(&config, &matches)?;
-    print_weather(matches, weather_data);
+    print_weather(matches, config, weather_data);
 
     Ok(())
 }
@@ -77,7 +81,7 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
     }
 }
 
-pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
+pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::models::Forecast) {
     let c = weather.currently.unwrap();
     let d = weather.daily.unwrap();
     let h = weather.hourly.unwrap();
@@ -96,12 +100,18 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
     );
 
     let pressures: Vec<Option<f64>> = hourly_data.iter().map(|d| d.pressure).collect();
+    let times: Vec<DateTime<Local>> = hourly_data.iter().map(|d| Local.timestamp(d.time as i64, 0)).collect();
+    let position = find_closest_time_position(&times).unwrap_or_else(|| 0);
+    debug!("times: {:?}", times.iter().map(|t| t.hour()).collect::<Vec<u32>>());
+    debug!("position: {:?}", position);
+    debug!("now:  {:?} (hour: {:?})", Local::now(), Local::now().hour());
+
     let pressure_spark_graph = Sparkline::new(&pressures)
-        .with_highlight(2, (127, 255, 0, 0.75))
+        .with_highlight(position, &config.fg_color, &config.bg_color)
         .draw();
     let pressure_font_graph = SparkFont::new(
         pressures.iter().map(|p| p.unwrap_or_else(|| 0.)).collect(),
-    ).with_highlight(2, (127, 255, 0, 0.75))
+    ).with_highlight(position, &config.fg_color, &config.bg_color)
         .draw();
     debug!("pressure_spark_graph: {}", pressure_spark_graph);
     debug!("pressure_font_graph: {}", pressure_font_graph);
@@ -117,7 +127,7 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
             };
             debug!(
                 "pressure:\t{}\t{}",
-                chrono::Local.timestamp(d.time as i64, 0).to_string(),
+                Local.timestamp(d.time as i64, 0).to_string(),
                 d.pressure.unwrap()
             );
             stats.push(s);
@@ -154,7 +164,7 @@ pub fn print_weather(matches: &ArgMatches, weather: darksky::models::Forecast) {
 
         let moon = format!(
             "<span font_desc='Weather Icons'>{}</span>",
-            weather_icons::moon::phase(Color::Primary, daily_data[0].moon_phase.unwrap())
+            weather_icons::moon::phase(moon::Color::Primary, daily_data[0].moon_phase.unwrap())
         );
 
         output = [
@@ -248,4 +258,13 @@ fn graph(is_dot_line: bool, values: &[f64]) -> String {
             .join(","),
         max,
     )
+}
+
+fn find_closest_time_position(times: &[DateTime<Local>]) -> Option<usize> {
+    let now = Local::now();
+    //debug!("now: {:?}", now);
+    times.iter().position(|&time| {
+        //debug!("time: {:?} {:?}", time, now > time);
+        now < time && now.hour() == time.hour()
+    })
 }
