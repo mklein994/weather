@@ -604,11 +604,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "read_color"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
 name = "redox_syscall"
 version = "0.1.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1036,7 +1031,6 @@ dependencies = [
  "drawille 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "read_color 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "reqwest 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "spark 0.4.0 (git+https://github.com/mklein994/rust-spark)",
@@ -1160,7 +1154,6 @@ dependencies = [
 "checksum pkg-config 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)" = "3a8b4c6b8165cd1a1cd4b9b120978131389f64bdaf456435caa41e630edba903"
 "checksum quote 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)" = "7a6e920b65c65f10b2ae65c831a81a073a89edd28c7cce89475bff467ab4167a"
 "checksum rand 0.3.20 (registry+https://github.com/rust-lang/crates.io-index)" = "512870020642bb8c221bf68baa1b2573da814f6ccfe5c9699b1c303047abe9b1"
-"checksum read_color 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "9f4c8858baa4ad3c8bcc156ae91a0ffe22b76a3975c40c49b4f04c15c6bce0da"
 "checksum redox_syscall 0.1.37 (registry+https://github.com/rust-lang/crates.io-index)" = "0d92eecebad22b767915e4d529f89f28ee96dbbf5a4810d2b844373f136417fd"
 "checksum redox_termios 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "7e891cfe48e9100a70a3b6eb652fef28920c117d366339687bd5576160db0f76"
 "checksum regex 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)" = "744554e01ccbd98fff8c457c3b092cd67af62a555a43bfe97ae8a0451f7799fa"
