@@ -27,7 +27,6 @@ use clap::ArgMatches;
 use darksky::models::Icon as DarkskyIcon;
 use darksky::{Block, DarkskyReqwestRequester, Language, Unit};
 use reqwest::Client;
-use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use weather_icons::{moon, Icon};
@@ -48,7 +47,7 @@ pub fn run(config: &Config, matches: &ArgMatches) -> Result<()> {
 fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models::Forecast> {
     if matches.is_present("debug") {
         let mut contents = String::new();
-        let path = env::var("DARKSKY_LOCAL").unwrap();
+        let path = config.local.clone().unwrap();
         info!("using local file: {}", path);
         let mut f = File::open(path)?;
         f.read_to_string(&mut contents)?;

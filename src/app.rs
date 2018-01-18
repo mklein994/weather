@@ -5,6 +5,12 @@ pub fn build_cli<'a>() -> ArgMatches<'a> {
         .version(crate_version!())
         .author(crate_authors!())
         .arg(
+            Arg::with_name("config")
+                .long("config")
+                .help("path to config.toml file")
+                .takes_value(true),
+        )
+        .arg(
             Arg::with_name("i3")
                 .short("3")
                 .long("i3blocks")

@@ -1,5 +1,9 @@
 use color::Color;
-use std::env;
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::Path;
+use super::{Result, WeatherError};
+use toml;
 
 #[derive(Debug, Default, Deserialize)]
 pub struct Config {
@@ -8,16 +12,16 @@ pub struct Config {
     pub lon: f64,
     pub bg_color: Color,
     pub fg_color: Color,
+    pub local: Option<String>,
 }
 
 impl Config {
-    pub fn new() -> Self {
-        Config {
-            token: env::var("DARKSKY_KEY").unwrap(),
-            lat: env::var("DARKSKY_LAT").unwrap().parse::<f64>().unwrap(),
-            lon: env::var("DARKSKY_LON").unwrap().parse::<f64>().unwrap(),
-            bg_color: env::var("DARKSKY_BACKGROUND_COLOR").unwrap().parse::<Color>().unwrap(),
-            fg_color: env::var("DARKSKY_FOREGROUND_COLOR").unwrap().parse::<Color>().unwrap(),
-        }
+    pub fn from_path(path: &Path) -> Result<Self> {
+        let mut f = File::open(path)?;
+
+        let mut contents = String::new();
+        f.read_to_string(&mut contents)?;
+
+        toml::from_str(&contents).map_err(WeatherError::Toml)
     }
 }

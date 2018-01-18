@@ -1,6 +1,7 @@
 use ::std::str::FromStr;
+use serde::{de, Deserialize, Deserializer};
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default)]
 pub struct Color {
     pub red: u8,
     pub green: u8,
@@ -43,5 +44,13 @@ impl FromStr for Color {
 impl From<u32> for Color {
     fn from(c: u32) -> Self {
         format!("{:08x}", c).parse().unwrap()
+    }
+}
+
+impl<'de> Deserialize<'de> for Color {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de> {
+        let s = String::deserialize(deserializer)?;
+        FromStr::from_str(&s).map_err(de::Error::custom)
     }
 }
