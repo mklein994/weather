@@ -1,4 +1,4 @@
-use ::std::str::FromStr;
+use std::str::FromStr;
 use serde::{de, Deserialize, Deserializer};
 
 #[derive(Debug, Default)]
@@ -49,7 +49,9 @@ impl From<u32> for Color {
 
 impl<'de> Deserialize<'de> for Color {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de> {
+    where
+        D: Deserializer<'de>,
+    {
         let s = String::deserialize(deserializer)?;
         FromStr::from_str(&s).map_err(de::Error::custom)
     }

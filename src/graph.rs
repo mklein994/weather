@@ -5,7 +5,12 @@ use color::Color;
 
 pub trait Graph<'a> {
     fn draw(&self) -> String;
-    fn with_highlight(&mut self, position: usize, fg_color: &'a Color, bg_color: &'a Color) -> &mut Self;
+    fn with_highlight(
+        &mut self,
+        position: usize,
+        fg_color: &'a Color,
+        bg_color: &'a Color,
+    ) -> &mut Self;
 }
 
 pub struct Highlight<'a> {
@@ -29,8 +34,17 @@ impl<'a> Sparkline<'a> {
 }
 
 impl<'a> Graph<'a> for Sparkline<'a> {
-    fn with_highlight(&mut self, position: usize, fg_color: &'a Color, bg_color: &'a Color) -> &mut Self {
-        self.highlight = Some(Highlight { position, fg_color, bg_color });
+    fn with_highlight(
+        &mut self,
+        position: usize,
+        fg_color: &'a Color,
+        bg_color: &'a Color,
+    ) -> &mut Self {
+        self.highlight = Some(Highlight {
+            position,
+            fg_color,
+            bg_color,
+        });
         self
     }
 
@@ -71,8 +85,16 @@ impl<'a> Graph<'a> for Sparkline<'a> {
 
         if let Some(ref h) = self.highlight {
             graph[h.position] = Style::default()
-                .fg(Colour::RGB(h.fg_color.red, h.fg_color.green, h.fg_color.blue))
-                .on(Colour::RGB(h.bg_color.red, h.bg_color.green, h.bg_color.blue))
+                .fg(Colour::RGB(
+                    h.fg_color.red,
+                    h.fg_color.green,
+                    h.fg_color.blue,
+                ))
+                .on(Colour::RGB(
+                    h.bg_color.red,
+                    h.bg_color.green,
+                    h.bg_color.blue,
+                ))
                 .paint(graph[h.position].clone())
                 .to_string();
         }
@@ -132,8 +154,17 @@ impl<'a> SparkFont<'a> {
 }
 
 impl<'a> Graph<'a> for SparkFont<'a> {
-    fn with_highlight(&mut self, position: usize, fg_color: &'a Color, bg_color: &'a Color) -> &mut Self {
-        self.highlight = Some(Highlight { position, fg_color, bg_color });
+    fn with_highlight(
+        &mut self,
+        position: usize,
+        fg_color: &'a Color,
+        bg_color: &'a Color,
+    ) -> &mut Self {
+        self.highlight = Some(Highlight {
+            position,
+            fg_color,
+            bg_color,
+        });
         self
     }
 

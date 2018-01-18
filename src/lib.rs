@@ -8,9 +8,9 @@ extern crate env_logger;
 extern crate log;
 extern crate reqwest;
 extern crate serde;
-extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
+extern crate serde_json;
 extern crate spark;
 extern crate stats;
 extern crate toml;
@@ -22,7 +22,7 @@ pub mod config;
 pub mod error;
 pub mod graph;
 
-use chrono::{DateTime, Local, Timelike, TimeZone};
+use chrono::{DateTime, Local, TimeZone, Timelike};
 use clap::ArgMatches;
 use darksky::models::Icon as DarkskyIcon;
 use darksky::{Block, DarkskyReqwestRequester, Language, Unit};
@@ -83,9 +83,15 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
     );
 
     let pressures: Vec<Option<f64>> = hourly_data.iter().map(|d| d.pressure).collect();
-    let times: Vec<DateTime<Local>> = hourly_data.iter().map(|d| Local.timestamp(d.time as i64, 0)).collect();
+    let times: Vec<DateTime<Local>> = hourly_data
+        .iter()
+        .map(|d| Local.timestamp(d.time as i64, 0))
+        .collect();
     let position = find_closest_time_position(&times).unwrap_or_else(|| 0);
-    debug!("times: {:?}", times.iter().map(|t| t.hour()).collect::<Vec<u32>>());
+    debug!(
+        "times: {:?}",
+        times.iter().map(|t| t.hour()).collect::<Vec<u32>>()
+    );
     debug!("position: {:?}", position);
     debug!("now:  {:?} (hour: {:?})", Local::now(), Local::now().hour());
 
