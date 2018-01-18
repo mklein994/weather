@@ -7,52 +7,36 @@ extern crate env_logger;
 #[macro_use]
 extern crate log;
 extern crate reqwest;
+extern crate serde;
 extern crate serde_json;
+#[macro_use]
+extern crate serde_derive;
 extern crate spark;
 extern crate stats;
+extern crate toml;
 extern crate weather_icons;
+
+pub mod app;
+pub mod color;
+pub mod config;
+pub mod error;
+pub mod graph;
 
 use chrono::{DateTime, Local, Timelike, TimeZone};
 use clap::ArgMatches;
 use darksky::models::Icon as DarkskyIcon;
 use darksky::{Block, DarkskyReqwestRequester, Language, Unit};
-use error::WeatherError;
 use reqwest::Client;
 use std::env;
 use std::fs::File;
 use std::io::prelude::*;
-
-use color::Color;
-use graph::{Graph, SparkFont, Sparkline};
 use weather_icons::{moon, Icon};
 
+pub use config::Config;
+use error::WeatherError;
+use graph::{Graph, SparkFont, Sparkline};
+
 type Result<T> = std::result::Result<T, WeatherError>;
-
-pub mod app;
-pub mod color;
-pub mod error;
-pub mod graph;
-
-#[derive(Debug, Default)]
-pub struct Config {
-    token: String,
-    lat: f64,
-    lon: f64,
-    bg_color: Color,
-    fg_color: Color,
-}
-
-impl Config {
-    pub fn new() -> Self {
-        Config {
-            token: env::var("DARKSKY_KEY").unwrap(),
-            lat: env::var("DARKSKY_LAT").unwrap().parse::<f64>().unwrap(),
-            lon: env::var("DARKSKY_LON").unwrap().parse::<f64>().unwrap(),
-            bg_color: env::var("DARKSKY_BACKGROUND_COLOR").unwrap().parse::<Color>().unwrap(),
-            fg_color: env::var("DARKSKY_FOREGROUND_COLOR").unwrap().parse::<Color>().unwrap(),
-        }
-    }
-}
 
 pub fn run(config: &Config, matches: &ArgMatches) -> Result<()> {
     let weather_data = get_weather(&config, &matches)?;

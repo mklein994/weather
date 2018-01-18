@@ -1,6 +1,6 @@
 use ::std::str::FromStr;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Deserialize)]
 pub struct Color {
     pub red: u8,
     pub green: u8,
