@@ -11,18 +11,16 @@ fn main() {
 
     let matches = app::build_cli();
 
-    let settings_path = matches.value_of("config").map_or_else(
-        || {
-            env::home_dir()
-                .unwrap()
-                .join(".config")
-                .join(env!("CARGO_PKG_NAME"))
-                .join("config.toml")
-        },
-        |c| PathBuf::from(c),
+    let settings_path = matches.value_of("config").map_or(
+        env::home_dir()
+            .unwrap()
+            .join(".config")
+            .join(env!("CARGO_PKG_NAME"))
+            .join("config.toml"),
+        PathBuf::from,
     );
 
-    let config = Config::from_path(&settings_path.as_path()).unwrap_or_else(|e| {
+    let config = Config::from_path_buf(&settings_path).unwrap_or_else(|e| {
         eprintln!(
             "Error parsing config file \"{}\": {}",
             settings_path.display(),

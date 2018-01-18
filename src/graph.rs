@@ -15,14 +15,14 @@ pub struct Highlight<'a> {
 }
 
 pub struct Sparkline<'a> {
-    values: Vec<Option<f64>>,
+    values: &'a [Option<f64>],
     highlight: Option<Highlight<'a>>,
 }
 
 impl<'a> Sparkline<'a> {
-    pub fn new(values: &[Option<f64>]) -> Self {
+    pub fn new(values: &'a [Option<f64>]) -> Self {
         Sparkline {
-            values: values.clone().to_vec(),
+            values: values,
             highlight: None,
         }
     }

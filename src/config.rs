@@ -1,7 +1,7 @@
 use color::Color;
 use std::fs::File;
 use std::io::prelude::*;
-use std::path::Path;
+use std::path::PathBuf;
 use super::{Result, WeatherError};
 use toml;
 
@@ -16,7 +16,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn from_path(path: &Path) -> Result<Self> {
+    pub fn from_path_buf(path: &PathBuf) -> Result<Self> {
         let mut f = File::open(path)?;
 
         let mut contents = String::new();
