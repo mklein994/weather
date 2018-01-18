@@ -6,7 +6,7 @@ use std::env;
 use weather::{app, Config};
 
 fn main() {
-    env_logger::init().expect("failed to initialize logger");
+    env_logger::try_init().expect("failed to initialize logger");
 
     let settings_path = env::home_dir()
         .unwrap()
