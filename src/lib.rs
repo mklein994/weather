@@ -111,7 +111,7 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
             };
             debug!(
                 "pressure:\t{}\t{}",
-                Local.timestamp(d.time as i64, 0).to_string(),
+                Local.timestamp(d.time as i64, 0).timestamp(),
                 d.pressure.unwrap()
             );
             stats.push(s);
