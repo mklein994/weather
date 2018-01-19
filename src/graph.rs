@@ -1,5 +1,6 @@
 use ansi_term::{Colour, Style};
 use std::fmt;
+use std::str::FromStr;
 
 use color::Color;
 
@@ -120,9 +121,26 @@ pub enum FontType {
     DotlineMedium,
 }
 
+impl FromStr for FontType {
+    type Err = String;
+
+    fn from_str(font: &str) -> Result<Self, Self::Err> {
+        match font {
+            "spark barmedium" => Ok(FontType::BarMedium),
+            "spark barnarrow" => Ok(FontType::BarNarrow),
+            "spark barthin" => Ok(FontType::BarThin),
+            "spark dotmedium" => Ok(FontType::DotMedium),
+            "spark dotsmall" => Ok(FontType::DotSmall),
+            "spark dot-linemedium" => Ok(FontType::DotlineMedium),
+            _ => Err("Could not parse font".to_owned()),
+        }
+    }
+}
+
 impl FontType {
     fn size(&self) -> u32 {
-        match self {
+        match *self {
+            FontType::DotlineMedium => 9,
             _ => 100,
         }
     }
@@ -130,11 +148,17 @@ impl FontType {
 
 impl fmt::Display for FontType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use self::FontType::*;
         write!(
             f,
             "{}",
-            match self {
-                _ => "made it",
+            match *self {
+                BarMedium => "spark barmedium",
+                BarNarrow => "spark barnarrow",
+                BarThin => "spark barthin",
+                DotMedium => "spark dotmedium",
+                DotSmall => "spark dotsmall",
+                DotlineMedium => "spark dot-linemedium",
             }
         )
     }
