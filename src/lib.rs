@@ -87,13 +87,8 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
         .iter()
         .map(|d| Local.timestamp(d.time as i64, 0))
         .collect();
-    let position = find_closest_time_position(&times).unwrap_or_else(|| 0);
-    debug!(
-        "times: {:?}",
-        times.iter().map(|t| t.hour()).collect::<Vec<u32>>()
-    );
-    debug!("position: {:?}", position);
-    debug!("now:  {:?} (hour: {:?})", Local::now(), Local::now().hour());
+
+    let position = find_closest_time_position(&times);
 
     let pressure_spark_graph = Sparkline::new(&pressures)
         .with_highlight(position, &config.fg_color, &config.bg_color)
@@ -250,10 +245,8 @@ fn graph(is_dot_line: bool, values: &[f64]) -> String {
 }
 
 fn find_closest_time_position(times: &[DateTime<Local>]) -> Option<usize> {
-    let now = Local::now();
-    //debug!("now: {:?}", now);
+    let current_time = Local::now();
     times.iter().position(|&time| {
-        //debug!("time: {:?} {:?}", time, now > time);
-        now < time && now.hour() == time.hour()
+        current_time < time && current_time.hour() == time.hour()
     })
 }

@@ -7,7 +7,7 @@ pub trait Graph<'a> {
     fn draw(&self) -> String;
     fn with_highlight(
         &mut self,
-        position: usize,
+        position: Option<usize>,
         fg_color: &'a Color,
         bg_color: &'a Color,
     ) -> &mut Self;
@@ -36,15 +36,17 @@ impl<'a> Sparkline<'a> {
 impl<'a> Graph<'a> for Sparkline<'a> {
     fn with_highlight(
         &mut self,
-        position: usize,
+        position: Option<usize>,
         fg_color: &'a Color,
         bg_color: &'a Color,
     ) -> &mut Self {
-        self.highlight = Some(Highlight {
-            position,
-            fg_color,
-            bg_color,
-        });
+        if let Some(p) = position {
+            self.highlight = Some(Highlight {
+                position: p,
+                fg_color,
+                bg_color,
+            });
+        }
         self
     }
 
@@ -156,15 +158,17 @@ impl<'a> SparkFont<'a> {
 impl<'a> Graph<'a> for SparkFont<'a> {
     fn with_highlight(
         &mut self,
-        position: usize,
+        position: Option<usize>,
         fg_color: &'a Color,
         bg_color: &'a Color,
     ) -> &mut Self {
-        self.highlight = Some(Highlight {
-            position,
-            fg_color,
-            bg_color,
-        });
+        if let Some(p) = position {
+            self.highlight = Some(Highlight {
+                position: p,
+                fg_color,
+                bg_color,
+            });
+        }
         self
     }
 
