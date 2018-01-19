@@ -222,7 +222,7 @@ impl<'a> Graph<'a> for SparkFont<'a> {
             .collect::<Vec<String>>();
         graph[0] = format!("{{{}", graph[0].clone());
         let last = graph.len() - 1;
-        graph[last] = format!("{}}}", graph[last].clone());
+        graph[last] = graph[last].replace(",", "}");
 
         if let Some(ref h) = self.highlight {
             graph[h.position] = format!(
