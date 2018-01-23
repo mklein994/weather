@@ -33,7 +33,7 @@ use weather_icons::{moon, Icon};
 
 pub use config::Config;
 use error::WeatherError;
-use graph::{Graph, SparkFont, Sparkline};
+use graph::Graph;
 
 type Result<T> = std::result::Result<T, WeatherError>;
 
@@ -83,48 +83,34 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
     );
 
     let pressures: Vec<Option<f64>> = hourly_data.iter().map(|d| d.pressure).collect();
+
     let times: Vec<DateTime<Local>> = hourly_data
         .iter()
         .map(|d| Local.timestamp(d.time as i64, 0))
         .collect();
 
+    let mut pressure_graph = Graph::new();
+    pressure_graph.values(&pressures);
+
     let position = find_closest_time_position(&times);
+    debug!("calculated position: {:?}", position);
 
-    let pressure_spark_graph = Sparkline::new(&pressures)
-        .with_highlight(position, &config.fg_color, &config.bg_color)
-        .draw();
-    let pressure_font_graph = SparkFont::new(
-        pressures.iter().map(|p| p.unwrap_or_else(|| 0.)).collect(),
-    ).with_highlight(position, &config.fg_color, &config.bg_color)
-        .draw();
-    debug!("pressure_spark_graph: {}", pressure_spark_graph);
-    debug!("pressure_font_graph: {}", pressure_font_graph);
+    if let Some(ref h) = config.highlight {
+        pressure_graph.highlight(&position, h);
+    }
 
-    let mut stats: Vec<stats::OnlineStats> = Vec::new();
-    let mut s = stats::OnlineStats::new();
-    let hourly_pressures: Vec<Option<f64>> = hourly_data
-        .iter()
-        .map(|d| {
-            match d.pressure {
-                Some(p) => s.add(p),
-                None => s.add_null(),
-            };
-            debug!(
-                "pressure:\t{}\t{}",
-                Local.timestamp(d.time as i64, 0).timestamp(),
-                d.pressure.unwrap()
-            );
-            stats.push(s);
-            d.pressure
-        })
-        .collect();
+    if let Some(ref f) = config.font {
+        pressure_graph.font(f);
+    }
 
-    let (pressure_min, pressure_max, pressure_spark_graph) = spark::graph_opt(&hourly_pressures);
+    debug!("pressure graph: {:?}", pressure_graph);
+    debug!("pressure graph sparkline: {:?}", pressure_graph.sparkline());
+    debug!("pressure graph sparkfont: {:?}", pressure_graph.sparkfont());
 
     let daily_temperatures: Vec<Option<f64>> = daily_data
         .iter()
         .map(|d| {
-            debug!("temp: {}", d.temperature_high.unwrap());
+            debug!("daily high temp: {}", d.temperature_high.unwrap());
             d.temperature_high
         })
         .collect();
@@ -133,13 +119,7 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
         spark::graph_opt(&daily_temperatures);
 
     if matches.is_present("i3") {
-        let pressure_smooth_graph = graph(
-            false,
-            &hourly_pressures
-                .into_iter()
-                .filter_map(|p| Some(p.unwrap_or(0.)))
-                .collect::<Vec<f64>>(),
-        );
+        // TODO: put pressure sparkfont graph here
 
         let icon_string = format!(
             "<span font_desc='Weather Icons'>{icon}</span>",
@@ -152,17 +132,7 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
         );
 
         output = [
-            // possible options:
-            //  dot-line medium  `spark dot-linemedium`
-            //  dot      small   `spark dotsmall`
-            //  dot      medium  `spark dotmedium`
-            //  bar      medium  `spark barmedium`
-            //  bar      narrow  `spark barnarrow`
-            //  bar      thin    `spark barthin`
-            format!(
-                "<span font_desc='spark dotsmall 11'>{}</span>",
-                pressure_smooth_graph
-            ),
+            pressure_graph.sparkfont(),
             icon_string,
             output,
             moon,
@@ -172,10 +142,7 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
     println!("{}", output);
 
     if matches.is_present("long") {
-        println!(
-            "hourly pressure forecast:\n{} {} {}",
-            pressure_min, pressure_spark_graph, pressure_max
-        );
+        println!("hourly pressure forecast:\n{}", pressure_graph.sparkline());
         println!(
             "temperatures this week:\n{} {} {}",
             daily_temperature_min, temperature_spark_graph, daily_temperature_max
@@ -209,44 +176,9 @@ fn get_icon(icon: &DarkskyIcon) -> Icon {
     }
 }
 
-fn graph(is_dot_line: bool, values: &[f64]) -> String {
-    let mut min: f64 = std::f64::MAX;
-    let mut max: f64 = 0.;
-
-    for &i in values.iter() {
-        if i > max {
-            max = i;
-        }
-        if i < min {
-            min = i;
-        }
-    }
-
-    let ratio = if max == min {
-        1.0
-    } else {
-        let max_tick = if is_dot_line { 9 } else { 100 };
-
-        max_tick as f64 / (max - min)
-    };
-
-    format!(
-        "{}{{{}}}{}",
-        min,
-        values
-            .iter()
-            .cloned()
-            .map(|n| (n - min) * ratio)
-            .map(|n| n.floor().to_string())
-            .collect::<Vec<String>>()
-            .join(","),
-        max,
-    )
-}
-
 fn find_closest_time_position(times: &[DateTime<Local>]) -> Option<usize> {
     let current_time = Local::now();
-    times.iter().position(|&time| {
-        current_time < time && current_time.hour() == time.hour()
-    })
+    times
+        .iter()
+        .position(|time| current_time.date() == time.date() && current_time.hour() == time.hour())
 }

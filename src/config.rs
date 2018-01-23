@@ -1,17 +1,17 @@
-use color::Color;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
 use super::{Result, WeatherError};
 use toml;
+use graph::{Font, Highlight};
 
 #[derive(Debug, Default, Deserialize)]
 pub struct Config {
     pub token: String,
     pub lat: f64,
     pub lon: f64,
-    pub bg_color: Color,
-    pub fg_color: Color,
+    pub font: Option<Font>,
+    pub highlight: Option<Highlight>,
     pub local: Option<String>,
 }
 
