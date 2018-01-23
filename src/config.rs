@@ -1,9 +1,9 @@
+use super::{Result, WeatherError};
+use graph::{Font, Highlight};
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
-use super::{Result, WeatherError};
 use toml;
-use graph::{Font, Highlight};
 
 #[derive(Debug, Default, Deserialize)]
 pub struct Config {

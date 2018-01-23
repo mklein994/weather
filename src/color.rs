@@ -1,5 +1,5 @@
-use std::str::FromStr;
 use serde::{de, Deserialize, Deserializer};
+use std::str::FromStr;
 
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Color {
