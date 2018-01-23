@@ -3,7 +3,6 @@ extern crate chrono;
 #[macro_use]
 extern crate clap;
 extern crate darksky;
-extern crate env_logger;
 #[macro_use]
 extern crate log;
 extern crate reqwest;
@@ -12,7 +11,6 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 extern crate spark;
-extern crate stats;
 extern crate toml;
 extern crate weather_icons;
 
