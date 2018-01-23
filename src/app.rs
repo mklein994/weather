@@ -32,5 +32,18 @@ pub fn build_cli<'a>() -> ArgMatches<'a> {
                     env!("CARGO_PKG_NAME")
                 )),
         )
+        .arg(
+            Arg::with_name("historical")
+                .short("H")
+                .long("historical")
+                .takes_value(true)
+                .help("Make a Time Machine request")
+                .long_help(
+                    "Make a Time Machine request. Optionally takes a UNIX timestamp. This \
+                     conflicts with `debug`, because this program doesn't know beforehand \
+                     whether the local file is historical or current.",
+                )
+                .conflicts_with("debug"),
+        )
         .get_matches()
 }

@@ -1,5 +1,7 @@
 extern crate dotenv;
 extern crate env_logger;
+#[macro_use]
+extern crate log;
 extern crate weather;
 
 use std::env;
@@ -10,6 +12,7 @@ fn main() {
     env_logger::try_init().expect("failed to initialize logger");
 
     let matches = app::build_cli();
+    debug!("{:#?}", matches);
 
     let settings_path = matches.value_of("config").map_or(
         env::home_dir()

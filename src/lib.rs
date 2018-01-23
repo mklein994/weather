@@ -54,13 +54,28 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
         serde_json::from_str(&contents).map_err(WeatherError::Json)
     } else {
         let client = Client::new();
-        client
-            .get_forecast_with_options(&config.token, config.lat, config.lon, |o| {
-                o.exclude(vec![Block::Minutely])
-                    .unit(Unit::Auto)
-                    .language(Language::En)
-            })
-            .map_err(WeatherError::Darksky)
+        match matches.occurrences_of("historical") {
+            0 => client
+                .get_forecast_with_options(&config.token, config.lat, config.lon, |o| {
+                    o.exclude(vec![Block::Minutely])
+                        .unit(Unit::Auto)
+                        .language(Language::En)
+                })
+                .map_err(WeatherError::Darksky),
+            _ => client
+                .get_forecast_time_machine(
+                    &config.token,
+                    config.lat,
+                    config.lon,
+                    matches.value_of("historical").unwrap(),
+                    |o| {
+                        o.exclude(vec![Block::Minutely])
+                            .unit(Unit::Auto)
+                            .language(Language::En)
+                    },
+                )
+                .map_err(WeatherError::Darksky),
+        }
     }
 }
 
@@ -92,8 +107,8 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
     let mut pressure_graph = Graph::new();
     pressure_graph.values(&pressures);
 
-    let position = find_closest_time_position(&times);
-    debug!("calculated position: {:?}", position);
+    let position = find_closest_time_position(&Local.timestamp(c.time as i64, 0), &times);
+    info!("calculated position: {:?}", position);
 
     if let Some(ref h) = config.highlight {
         pressure_graph.highlight(&position, h);
@@ -131,12 +146,7 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
             weather_icons::moon::phase(moon::Color::Primary, daily_data[0].moon_phase.unwrap())
         );
 
-        output = [
-            pressure_graph.sparkfont(),
-            icon_string,
-            output,
-            moon,
-        ].join(" ");
+        output = [pressure_graph.sparkfont(), icon_string, output, moon].join(" ");
     }
 
     println!("{}", output);
@@ -176,9 +186,14 @@ fn get_icon(icon: &DarkskyIcon) -> Icon {
     }
 }
 
-fn find_closest_time_position(times: &[DateTime<Local>]) -> Option<usize> {
-    let current_time = Local::now();
+fn find_closest_time_position(time: &DateTime<Local>, times: &[DateTime<Local>]) -> Option<usize> {
+    let current_time = time;
     times
         .iter()
+        .inspect(|t| {
+            if current_time.date() == time.date() && current_time.hour() == t.hour() {
+                debug!("current_time: {:?}, t: {:?}", current_time, t)
+            }
+        })
         .position(|time| current_time.date() == time.date() && current_time.hour() == time.hour())
 }
