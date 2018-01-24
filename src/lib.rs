@@ -132,8 +132,6 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
         spark::graph_opt(&daily_temperatures);
 
     if matches.is_present("i3") {
-        // TODO: put pressure sparkfont graph here
-
         let icon_string = format!(
             "<span font_desc='Weather Icons'>{icon}</span>",
             icon = get_icon(&c.icon.unwrap())
