@@ -27,7 +27,7 @@ use darksky::models::Icon as DarkskyIcon;
 use reqwest::Client;
 use std::fs::File;
 use std::io::prelude::*;
-use weather_icons::{moon, Icon};
+use weather_icons::{Icon, Moon, Theme};
 
 pub use config::Config;
 use error::WeatherError;
@@ -139,7 +139,7 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
 
         let moon = format!(
             "<span font_desc='Weather Icons'>{}</span>",
-            weather_icons::moon::phase(moon::Color::Primary, daily_data[0].moon_phase.unwrap())
+            Moon::phase(&Theme::Primary, daily_data[0].moon_phase.unwrap())
         );
 
         output = [pressure_graph.sparkfont(), icon_string, output, moon].join(" ");
