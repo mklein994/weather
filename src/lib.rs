@@ -27,7 +27,7 @@ use darksky::models::Icon as DarkskyIcon;
 use reqwest::Client;
 use std::fs::File;
 use std::io::prelude::*;
-use weather_icons::{Icon, Moon, Theme};
+use weather_icons::{Condition, Icon, Moon, Style, Time};
 
 pub use config::Config;
 use error::WeatherError;
@@ -131,15 +131,24 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
     let (daily_temperature_min, daily_temperature_max, temperature_spark_graph) =
         spark::graph_opt(&daily_temperatures);
 
+    let (sunrise, sunset) = (
+        Local.timestamp(daily_data[0].sunrise_time.unwrap() as i64, 0),
+        Local.timestamp(daily_data[0].sunset_time.unwrap() as i64, 0),
+    );
+
     if matches.is_present("i3") {
         let icon_string = format!(
             "<span font_desc='Weather Icons'>{icon}</span>",
-            icon = get_icon(&c.icon.unwrap())
+            icon = get_icon(&c.icon.unwrap(), &Local::now(), &sunrise, &sunset)
         );
 
         let moon = format!(
             "<span font_desc='Weather Icons'>{}</span>",
-            Moon::phase(&Theme::Primary, daily_data[0].moon_phase.unwrap())
+            Moon::new()
+                .style(Style::Primary)
+                .phase(daily_data[0].moon_phase.unwrap())
+                .unwrap()
+                .build()
         );
 
         output = [pressure_graph.sparkfont(), icon_string, output, moon].join(" ");
@@ -164,21 +173,41 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
     }
 }
 
-fn get_icon(icon: &DarkskyIcon) -> Icon {
-    match *icon {
-        DarkskyIcon::ClearDay => Icon::DarkskyClearDay,
-        DarkskyIcon::ClearNight => Icon::DarkskyClearNight,
-        DarkskyIcon::Cloudy => Icon::DarkskyCloudy,
-        DarkskyIcon::Fog => Icon::DarkskyFog,
-        DarkskyIcon::Hail => Icon::DarkskyHail,
-        DarkskyIcon::PartlyCloudyDay => Icon::DarkskyPartlyCloudyDay,
-        DarkskyIcon::PartlyCloudyNight => Icon::DarkskyPartlyCloudyNight,
-        DarkskyIcon::Rain => Icon::DarkskyRain,
-        DarkskyIcon::Sleet => Icon::DarkskySleet,
-        DarkskyIcon::Snow => Icon::DarkskySnow,
-        DarkskyIcon::Thunderstorm => Icon::DarkskyThunderstorm,
-        DarkskyIcon::Tornado => Icon::DarkskyTornado,
-        DarkskyIcon::Wind => Icon::DarkskyWind,
+fn get_icon(
+    icon: &DarkskyIcon,
+    now: &DateTime<Local>,
+    sunrise: &DateTime<Local>,
+    sunset: &DateTime<Local>,
+) -> Icon {
+    let time = if *now >= *sunrise && *now <= *sunset {
+        Time::Day
+    } else {
+        Time::Night
+    };
+
+    let new_icon = match *icon {
+        DarkskyIcon::Tornado => Some(Icon::Tornado),
+        DarkskyIcon::Wind => Some(Icon::Windy),
+        _ => match *icon {
+            DarkskyIcon::ClearNight | DarkskyIcon::ClearDay => Condition::Fair,
+            DarkskyIcon::Cloudy => Condition::Cloudy,
+            DarkskyIcon::Fog => Condition::Fog,
+            DarkskyIcon::Hail => Condition::Hail,
+            DarkskyIcon::PartlyCloudyNight | DarkskyIcon::PartlyCloudyDay => {
+                Condition::PartlyCloudy
+            }
+            DarkskyIcon::Rain => Condition::Rain,
+            DarkskyIcon::Sleet => Condition::Sleet,
+            DarkskyIcon::Snow => Condition::Snow,
+            DarkskyIcon::Thunderstorm => Condition::Thunderstorm,
+            _ => unreachable!(),
+        }.variant(time),
+    };
+
+    if let Some(n) = new_icon {
+        n
+    } else {
+        Icon::Na
     }
 }
 
