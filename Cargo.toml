@@ -18,4 +18,4 @@ serde_json = "1.0.8"
 serde_derive = "1.0.27"
 spark = { version = "0.4.0", git = "https://github.com/mklein994/rust-spark" }
 toml = "0.4.5"
-weather_icons = "0.3.0"
+weather_icons = "0.4.0"
