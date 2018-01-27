@@ -137,7 +137,9 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
     );
 
     if matches.is_present("i3") {
-        let icon_string = format!(
+        let pressure_icon = format!("<span font_desc='Weather Icons'>{}</span>", Icon::Barometer);
+
+        let current_condition_icon = format!(
             "<span font_desc='Weather Icons'>{icon}</span>",
             icon = get_icon(&c.icon.unwrap(), &Local::now(), &sunrise, &sunset)
         );
@@ -151,7 +153,13 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
                 .build()
         );
 
-        output = [pressure_graph.sparkfont(), icon_string, output, moon].join(" ");
+        output = [
+            pressure_icon,
+            pressure_graph.sparkfont(),
+            current_condition_icon,
+            output,
+            moon,
+        ].join(" ");
     }
 
     println!("{}", output);
