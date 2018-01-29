@@ -1,6 +1,22 @@
 use serde::{de, Deserialize, Deserializer};
 use std::str::FromStr;
 
+#[derive(Debug, Clone, Copy)]
+pub enum CloudColors {
+    Clear = 0xeeeef5,
+    PartlyCloudy = 0xd5ae2,
+    Overcast = 0xb6bfcb,
+}
+
+impl CloudColors {
+    pub fn color(&self) -> Color {
+        Color::from(*self as u32)
+    }
+}
+
+pub static PRECIPITATION_COLORS: &'static [u32] =
+    &[0xeeeef5, 0x96b4da, 0x80a5d6, 0x4a80c7, 0x3267ad];
+
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Color {
     pub red: u8,
