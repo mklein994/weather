@@ -212,11 +212,7 @@ fn get_icon(
         }.variant(time),
     };
 
-    if let Some(n) = new_icon {
-        n
-    } else {
-        Icon::Na
-    }
+    new_icon.unwrap_or(Default::default())
 }
 
 fn find_closest_time_position(time: &DateTime<Local>, times: &[DateTime<Local>]) -> Option<usize> {
