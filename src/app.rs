@@ -39,6 +39,13 @@ pub fn build_cli<'a>() -> ArgMatches<'a> {
                 .conflicts_with_all(&["i3", "long"]),
         )
         .arg(
+            Arg::with_name("local")
+                .long("local")
+                .help("use a local file as test data")
+                .conflicts_with_all(&["debug", "historical"])
+                .takes_value(true),
+        )
+        .arg(
             Arg::with_name("historical")
                 .short("H")
                 .long("historical")

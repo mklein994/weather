@@ -51,9 +51,15 @@ pub fn run(config: &Config, matches: &ArgMatches) -> Result<()> {
 }
 
 fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models::Forecast> {
-    if matches.is_present("debug") {
+    if matches.is_present("debug") || matches.is_present("local") {
         let mut contents = String::new();
-        let path = config.local.clone().unwrap();
+
+        let path = if let Some(p) = matches.value_of("local") {
+            p.to_string()
+        } else {
+            config.local.clone().unwrap()
+        };
+
         info!("using local file: {}", path);
         let mut f = File::open(path)?;
         f.read_to_string(&mut contents)?;
@@ -241,34 +247,32 @@ fn find_closest_time_position(time: &DateTime<Local>, times: &[DateTime<Local>])
 
 fn get_wind_bearing_icon<'a>(bearing: u32) -> &'a str {
     let arrows = vec![
-        // north (↑)
-        "\u{2191}",
-        // north-east (↗)
-        "\u{2197}",
-        // east (→)
-        "\u{2192}",
-        // south-east (↘)
-        "\u{2198}",
-        // south (↓)
-        "\u{2193}",
-        // south-west (↙)
-        "\u{2199}",
-        // west (←)
-        "\u{2190}",
-        // north-west (↖)
-        "\u{2196}",
+        "\u{2191}", // (↑) north
+        "\u{2197}", // (↗) north-east
+        "\u{2192}", // (→) east
+        "\u{2198}", // (↘) south-east
+        "\u{2193}", // (↓) south
+        "\u{2199}", // (↙) south-west
+        "\u{2190}", // (←) west
+        "\u{2196}", // (↖) north-west
     ];
 
-    // 360 degrees divided by 8 cardinal points = 45, shifted over by 45/2 = 22.5, truncated.
-    match bearing {
-        337...360 | 0...22 => arrows[0],
-        22...67 => arrows[1],
-        67...112 => arrows[2],
-        112...157 => arrows[3],
-        157...202 => arrows[4],
-        202...247 => arrows[5],
-        247...292 => arrows[6],
-        292...397 => arrows[7],
-        _ => "error",
+    // The wind bearing is given by the direction it's coming from, so flip it around to point in
+    // the direction it's blowing to.
+    //
+    // 360 degrees divided by 8 cardinal points = 45,
+    // shifted over by 45/2 = 22.5,
+    // truncated.
+    // TODO: don't hard code these ranges.
+    match (bearing + 180) % 360 {
+        338...360 | 0...22 => arrows[0],
+        23...67 => arrows[1],
+        68...112 => arrows[2],
+        113...157 => arrows[3],
+        158...202 => arrows[4],
+        203...247 => arrows[5],
+        248...292 => arrows[6],
+        293...337 => arrows[7],
+        _ => "wind bearing out of range",
     }
 }
