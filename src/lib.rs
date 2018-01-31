@@ -70,7 +70,7 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
             0 => client
                 .get_forecast_with_options(&config.token, config.lat, config.lon, |o| {
                     o.exclude(vec![Block::Minutely])
-                        .unit(Unit::Auto)
+                        .unit(Unit::Ca)
                         .language(Language::En)
                 })
                 .map_err(WeatherError::Darksky),
@@ -82,7 +82,7 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
                     matches.value_of("historical").unwrap(),
                     |o| {
                         o.exclude(vec![Block::Minutely])
-                            .unit(Unit::Auto)
+                            .unit(Unit::Ca)
                             .language(Language::En)
                     },
                 )
