@@ -141,8 +141,10 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
 
         let current_condition_icon = format!(
             "<span font_desc='Weather Icons'>{icon}</span>",
-            icon = get_icon(&c.icon.unwrap(), &Local::now(), &sunrise, &sunset)
+            icon = get_current_condition_icon(&c.icon.unwrap(), &Local::now(), &sunrise, &sunset)
         );
+
+        let wind_bearing_icon = get_wind_bearing_icon(c.wind_bearing.unwrap().trunc() as u32);
 
         let moon = format!(
             "<span font_desc='Weather Icons'>{}</span>",
@@ -158,6 +160,8 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
             pressure_graph.sparkfont(),
             current_condition_icon,
             output,
+            format!("<span font_desc='Fira Code'>{}</span>", wind_bearing_icon),
+            format!("{} km/h", c.wind_speed.unwrap().round() as i32),
             moon,
         ].join(" ");
     }
@@ -181,7 +185,7 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
     }
 }
 
-fn get_icon(
+fn get_current_condition_icon(
     icon: &DarkskyIcon,
     now: &DateTime<Local>,
     sunrise: &DateTime<Local>,
@@ -225,4 +229,38 @@ fn find_closest_time_position(time: &DateTime<Local>, times: &[DateTime<Local>])
             }
         })
         .position(|time| current_time.date() == time.date() && current_time.hour() == time.hour())
+}
+
+fn get_wind_bearing_icon<'a>(bearing: u32) -> &'a str {
+    let arrows = vec![
+        // north (↑)
+        "\u{2191}",
+        // north-east (↗)
+        "\u{2197}",
+        // east (→)
+        "\u{2192}",
+        // south-east (↘)
+        "\u{2198}",
+        // south (↓)
+        "\u{2193}",
+        // south-west (↙)
+        "\u{2199}",
+        // west (←)
+        "\u{2190}",
+        // north-west (↖)
+        "\u{2196}",
+    ];
+
+    // 360 degrees divided by 8 cardinal points = 45, shifted over by 45/2 = 22.5, truncated.
+    match bearing {
+        337...360 | 0...22 => arrows[0],
+        22...67 => arrows[1],
+        67...112 => arrows[2],
+        112...157 => arrows[3],
+        157...202 => arrows[4],
+        202...247 => arrows[5],
+        247...292 => arrows[6],
+        292...397 => arrows[7],
+        _ => "error",
+    }
 }
