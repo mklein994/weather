@@ -33,6 +33,12 @@ pub fn build_cli<'a>() -> ArgMatches<'a> {
                 )),
         )
         .arg(
+            Arg::with_name("json")
+                .long("json")
+                .help("just show the raw json response")
+                .conflicts_with_all(&["i3", "long"]),
+        )
+        .arg(
             Arg::with_name("historical")
                 .short("H")
                 .long("historical")

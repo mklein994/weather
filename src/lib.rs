@@ -37,7 +37,15 @@ type Result<T> = std::result::Result<T, WeatherError>;
 
 pub fn run(config: &Config, matches: &ArgMatches) -> Result<()> {
     let weather_data = get_weather(&config, &matches)?;
-    print_weather(matches, config, weather_data);
+    if matches.occurrences_of("json") == 1 {
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&weather_data)
+                .expect("couldn't convert weather data back to json")
+        );
+    } else {
+        print_weather(matches, config, weather_data);
+    }
 
     Ok(())
 }
