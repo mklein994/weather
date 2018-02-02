@@ -27,7 +27,7 @@ use darksky::models::Icon as DarkskyIcon;
 use reqwest::Client;
 use std::fs::File;
 use std::io::prelude::*;
-use weather_icons::{Condition, Icon, Moon, Style, Time};
+use weather_icons::{Condition, DripIcon, Icon, Moon, Style, Time};
 
 pub use config::Config;
 use error::WeatherError;
@@ -105,7 +105,7 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
         "{current_temp}{degrees} {summary}. ({feels_like_temp}{degrees})",
         degrees = degrees,
         current_temp = c.temperature.unwrap().round(),
-        summary = c.summary.unwrap(),
+        summary = c.summary.clone().unwrap(),
         feels_like_temp = c.apparent_temperature.unwrap().round()
     );
 
@@ -154,8 +154,16 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
         let pressure_icon = format!("<span font_desc='Weather Icons'>{}</span>", Icon::Barometer);
 
         let current_condition_icon = format!(
-            "<span font_desc='Weather Icons'>{icon}</span>",
-            icon = get_current_condition_icon(&c.icon.unwrap(), &Local::now(), &sunrise, &sunset)
+            //"<span font_desc='Weather Icons'>{icon}</span>",
+            "<span font_desc='dripicons-weather'>{icon}</span>",
+            icon = DripIcon::from(get_current_condition_icon(
+                //icon = get_current_condition_icon(
+                &c.icon.unwrap(),
+                //&precipitation,
+                &Local::now(),
+                &sunrise,
+                &sunset
+            ))
         );
 
         let wind_bearing_icon = get_wind_bearing_icon(c.wind_bearing.unwrap().trunc() as u32);
