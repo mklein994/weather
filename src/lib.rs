@@ -226,8 +226,6 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
             pressure_icon,
             pressure_graph.sparkfont(),
             current_condition_icon,
-            //"<span font_desc='climacons-font'>\u{e019}</span>".to_string(),
-            //format!("<span font_desc='Weather Icons'>{}</span> <span font_desc='dripicons-weather'>{}</span> <span font_desc='climacons-font'>{}</span>", Icon::RainMix, DripIcon::CloudDrizzle, weather_icons::Climacon::DrizzleCloud),
             output,
             format!("<span font_desc='Fira Code'>{}</span>", wind_bearing_icon),
             format!("{} km/h", c.wind_speed.unwrap().round() as i32),
@@ -241,7 +239,9 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
         println!("hourly pressure forecast:\n{}", pressure_graph.sparkline());
         println!(
             "temperatures this week:\n{} {} {}",
-            daily_temperature_min, temperature_spark_graph, daily_temperature_max
+            daily_temperature_min,
+            temperature_spark_graph,
+            daily_temperature_max
         );
         println!(
             "{}",
@@ -340,7 +340,9 @@ fn find_closest_time_position(time: &DateTime<Local>, times: &[DateTime<Local>])
                 debug!("current_time: {:?}, t: {:?}", current_time, t)
             }
         })
-        .position(|time| current_time.date() == time.date() && current_time.hour() == time.hour())
+        .position(|time| {
+            current_time.date() == time.date() && current_time.hour() == time.hour()
+        })
 }
 
 fn get_wind_bearing_icon<'a>(bearing: u32) -> &'a str {
