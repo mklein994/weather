@@ -10,6 +10,8 @@ pub fn build_cli<'a>() -> ArgMatches<'a> {
                 .help("path to config.toml file")
                 .takes_value(true),
         )
+        .arg(Arg::with_name("latitude").env("WEATHER_LAT"))
+        .arg(Arg::with_name("longitude").env("WEATHER_LON"))
         .arg(
             Arg::with_name("i3")
                 .short("3")

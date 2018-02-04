@@ -68,11 +68,32 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
         let client = Client::new();
         match matches.occurrences_of("historical") {
             0 => client
-                .get_forecast_with_options(&config.token, config.lat, config.lon, |o| {
-                    o.exclude(vec![Block::Minutely])
-                        .unit(Unit::Ca)
-                        .language(Language::En)
-                })
+                .get_forecast_with_options(
+                    &config.token,
+                    if matches.is_present("latitude") {
+                        matches
+                            .value_of("latitude")
+                            .unwrap()
+                            .parse::<f64>()
+                            .unwrap()
+                    } else {
+                        config.lat
+                    },
+                    if matches.is_present("longitude") {
+                        matches
+                            .value_of("longitude")
+                            .unwrap()
+                            .parse::<f64>()
+                            .unwrap()
+                    } else {
+                        config.lon
+                    },
+                    |o| {
+                        o.exclude(vec![Block::Minutely])
+                            .unit(Unit::Ca)
+                            .language(Language::En)
+                    },
+                )
                 .map_err(WeatherError::Darksky),
             _ => client
                 .get_forecast_time_machine(
