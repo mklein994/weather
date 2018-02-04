@@ -346,8 +346,9 @@ fn find_closest_time_position(time: &DateTime<Local>, times: &[DateTime<Local>])
 }
 
 fn get_wind_bearing_icon<'a>(bearing: u32) -> &'a str {
+    info!("current wind bearing: {}°", (bearing + 180) % 360);
+
     let arrows = vec![
-        "\u{2191}", // (↑) north
         "\u{2197}", // (↗) north-east
         "\u{2192}", // (→) east
         "\u{2198}", // (↘) south-east
@@ -355,24 +356,73 @@ fn get_wind_bearing_icon<'a>(bearing: u32) -> &'a str {
         "\u{2199}", // (↙) south-west
         "\u{2190}", // (←) west
         "\u{2196}", // (↖) north-west
+        "\u{2191}", // (↑) north
     ];
 
-    // The wind bearing is given by the direction it's coming from, so flip it around to point in
-    // the direction it's blowing to.
+    // The wind bearing describes the direction of the wind source, make it point to where
+    // it's blowing.
+    let bearing = (bearing + 180) % 360;
+
+    // Starting from the end of the list, find the closest arrow compared to the bearing.
     //
-    // 360 degrees divided by 8 cardinal points = 45,
-    // shifted over by 45/2 = 22.5,
-    // truncated.
-    // TODO: don't hard code these ranges.
-    match (bearing + 180) % 360 {
-        338...360 | 0...22 => arrows[0],
-        23...67 => arrows[1],
-        68...112 => arrows[2],
-        113...157 => arrows[3],
-        158...202 => arrows[4],
-        203...247 => arrows[5],
-        248...292 => arrows[6],
-        293...337 => arrows[7],
-        _ => "wind bearing out of range",
+    // Note that the ratio to convert an arrow to a degree is 360 divided the number of
+    // arrows.
+    //
+    // For every arrow:
+    //
+    //   - multiply each index by tha ratio to convert to degrees
+    //   - add half of the ratio to shift the capturing range over a bit. For example, if
+    //   there are 8 arrows, south would include 157° to 202°, passing through
+    //   direct south (180°).
+    if let Some((_, arrow)) = arrows
+        .iter()
+        .enumerate()
+        .rev()
+        // This is just the simplified version of what is described earlier.
+        .find(|&(i, _)| bearing as usize > (360 * i + 180) / arrows.len())
+    {
+        arrow
+    } else {
+        // Because we've adjusted the range, this won't catch bearings between 337°
+        // and 22°, so assume this is pointing north.
+        arrows.last().unwrap()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn wind_bearing() {
+        let arrows = vec![
+            "\u{2197}", // (↗) north-east
+            "\u{2192}", // (→) east
+            "\u{2198}", // (↘) south-east
+            "\u{2193}", // (↓) south
+            "\u{2199}", // (↙) south-west
+            "\u{2190}", // (←) west
+            "\u{2196}", // (↖) north-west
+            "\u{2191}", // (↑) north
+        ];
+
+        for bearing in 0..360 {
+            let expected = match (bearing + 180) % 360 {
+                23...67 => arrows[0],
+                68...112 => arrows[1],
+                113...157 => arrows[2],
+                158...202 => arrows[3],
+                203...247 => arrows[4],
+                248...292 => arrows[5],
+                293...337 => arrows[6],
+                338...360 | 0...22 => arrows[7],
+                _ => unreachable!()//"wind bearing out of range",
+            };
+
+            let actual = get_wind_bearing_icon(bearing);
+
+            println!("{:?}, {:?}, {:?}", bearing, expected, actual);
+            assert_eq!(expected, actual);
+        }
     }
 }
