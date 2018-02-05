@@ -6,12 +6,18 @@ use color::Color;
 
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub enum Font {
-    #[serde(rename = "spark barmedium")] BarMedium,
-    #[serde(rename = "spark barnarrow")] BarNarrow,
-    #[serde(rename = "spark barthin")] BarThin,
-    #[serde(rename = "spark dotmedium")] DotMedium,
-    #[serde(rename = "spark dotsmall")] DotSmall,
-    #[serde(rename = "spark dot-linemedium")] DotlineMedium,
+    #[serde(rename = "spark barmedium")]
+    BarMedium,
+    #[serde(rename = "spark barnarrow")]
+    BarNarrow,
+    #[serde(rename = "spark barthin")]
+    BarThin,
+    #[serde(rename = "spark dotmedium")]
+    DotMedium,
+    #[serde(rename = "spark dotsmall")]
+    DotSmall,
+    #[serde(rename = "spark dot-linemedium")]
+    DotlineMedium,
 }
 
 impl Default for Font {
