@@ -1,6 +1,6 @@
-use clap::{App, Arg, ArgMatches};
+use clap::{App, Arg};
 
-pub fn build_cli<'a>() -> ArgMatches<'a> {
+pub fn build_cli() -> App<'static, 'static> {
     App::new(crate_name!())
         .version(crate_version!())
         .author(crate_authors!())
@@ -29,9 +29,10 @@ pub fn build_cli<'a>() -> ArgMatches<'a> {
                 .short("D")
                 .long("debug")
                 .help("run with a local file")
-                .long_help(&format!(
-                    "run with a local file found in ~/.config/{}/config",
-                    env!("CARGO_PKG_NAME")
+                .long_help(concat!(
+                    "run with a local file found in ~/.config/",
+                    crate_name!(),
+                    "/config"
                 )),
         )
         .arg(
@@ -60,5 +61,4 @@ pub fn build_cli<'a>() -> ArgMatches<'a> {
                 )
                 .conflicts_with("debug"),
         )
-        .get_matches()
 }
