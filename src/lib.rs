@@ -10,7 +10,6 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
-extern crate spark;
 extern crate toml;
 extern crate weather_icons;
 
@@ -163,8 +162,7 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
         })
         .collect();
 
-    let (daily_temperature_min, daily_temperature_max, temperature_spark_graph) =
-        spark::graph_opt(&daily_temperatures);
+    let daily_temperature_spark_graph = Graph::new().values(&daily_temperatures).sparkline();
 
     let (sunrise, sunset) = (
         Local.timestamp(daily_data[0].sunrise_time.unwrap() as i64, 0),
@@ -258,10 +256,7 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
 
     if matches.is_present("long") {
         println!("hourly pressure forecast:\n{}", pressure_graph.sparkline());
-        println!(
-            "temperatures this week:\n{} {} {}",
-            daily_temperature_min, temperature_spark_graph, daily_temperature_max
-        );
+        println!("temperatures this week:\n{}", daily_temperature_spark_graph);
         println!(
             "{}",
             h.summary.unwrap_or_else(|| "no hourly summary".to_owned())

@@ -113,6 +113,8 @@ impl Graph {
         self
     }
 
+    // Giving credit where credit is due: this was heavily inspired by Jiři Šebele's work:
+    // https://github.com/jiri/rust-spark.
     pub fn sparkline(&self) -> String {
         let bars = "▁▂▃▄▅▆▇█";
 
@@ -167,6 +169,9 @@ impl Graph {
         graph.into_iter().collect::<String>()
     }
 
+    // Giving credit where credit is due: this was heavily inspired by Jiři Šebele's work:
+    // https://github.com/jiri/rust-spark.
+    // TODO: try to make this code DRY
     pub fn sparkfont(&self) -> String {
         let mut min = ::std::f64::MAX;
         let mut max = 0.;
