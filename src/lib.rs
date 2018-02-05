@@ -347,7 +347,7 @@ fn get_current_condition_icon(
         }.variant(time),
     };
 
-    new_icon.unwrap_or(Default::default())
+    new_icon.unwrap_or_default()
 }
 
 fn find_closest_time_position(time: &DateTime<Local>, times: &[DateTime<Local>]) -> Option<usize> {
