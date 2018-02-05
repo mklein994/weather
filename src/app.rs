@@ -32,7 +32,7 @@ pub fn build_cli() -> App<'static, 'static> {
                 .long_help(concat!(
                     "run with a local file found in ~/.config/",
                     crate_name!(),
-                    "/config"
+                    "/config.toml"
                 )),
         )
         .arg(
