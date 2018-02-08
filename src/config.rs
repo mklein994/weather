@@ -1,5 +1,5 @@
 use super::{Result, WeatherError};
-use graph::{Style, Weight, Highlight};
+use graph::{Highlight, Style, Weight};
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;

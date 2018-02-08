@@ -36,7 +36,7 @@ impl Graph {
     }
 
     pub fn highlight(&mut self, position: &Option<usize>, highlight: &Highlight) -> &mut Self {
-        self.highlight = Some(if !highlight.position.is_some() {
+        self.highlight = Some(if highlight.position.is_none() {
             Highlight {
                 position: *position,
                 ..*highlight
