@@ -1,5 +1,5 @@
 use super::{Result, WeatherError};
-use graph::{Font, Highlight};
+use graph::{Style, Weight, Highlight};
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
@@ -10,7 +10,10 @@ pub struct Config {
     pub token: String,
     pub lat: f64,
     pub lon: f64,
-    pub font: Option<Font>,
+    #[serde(rename = "font")]
+    pub font_style: Option<Style>,
+    #[serde(rename = "weight")]
+    pub font_weight: Option<Weight>,
     pub highlight: Option<Highlight>,
     pub local: Option<String>,
 }

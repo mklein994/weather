@@ -1,72 +1,11 @@
-use ansi_term::{self, Style};
-use std::fmt;
-use std::str::FromStr;
+mod font;
 
+use ansi_term;
+
+pub use self::font::{Font, Weight};
+use self::font::SPARKS_FONT_SIZE;
+pub use self::font::Style;
 use color::Color;
-
-#[derive(Copy, Clone, Debug, Deserialize)]
-pub enum Font {
-    #[serde(rename = "spark barmedium")]
-    BarMedium,
-    #[serde(rename = "spark barnarrow")]
-    BarNarrow,
-    #[serde(rename = "spark barthin")]
-    BarThin,
-    #[serde(rename = "spark dotmedium")]
-    DotMedium,
-    #[serde(rename = "spark dotsmall")]
-    DotSmall,
-    #[serde(rename = "spark dot-linemedium")]
-    DotlineMedium,
-}
-
-impl Default for Font {
-    fn default() -> Self {
-        Font::BarMedium
-    }
-}
-
-impl fmt::Display for Font {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use self::Font::*;
-        write!(
-            f,
-            "{}",
-            match *self {
-                BarMedium => "spark barmedium",
-                BarNarrow => "spark barnarrow",
-                BarThin => "spark barthin",
-                DotMedium => "spark dotmedium",
-                DotSmall => "spark dotsmall",
-                DotlineMedium => "spark dot-linemedium",
-            }
-        )
-    }
-}
-
-impl FromStr for Font {
-    type Err = String;
-    fn from_str(font: &str) -> Result<Self, Self::Err> {
-        match font {
-            "spark barmedium" => Ok(Font::BarMedium),
-            "spark barnarrow" => Ok(Font::BarNarrow),
-            "spark barthin" => Ok(Font::BarThin),
-            "spark dotmedium" => Ok(Font::DotMedium),
-            "spark dotsmall" => Ok(Font::DotSmall),
-            "spark dot-linemedium" => Ok(Font::DotlineMedium),
-            _ => Err("Could not parse font".to_owned()),
-        }
-    }
-}
-
-impl Font {
-    fn size(&self) -> u32 {
-        match *self {
-            Font::DotlineMedium => 9,
-            _ => 100,
-        }
-    }
-}
 
 #[derive(Copy, Clone, Debug, Default, Deserialize)]
 pub struct Highlight {
@@ -78,7 +17,7 @@ pub struct Highlight {
 #[derive(Debug, Default)]
 pub struct Graph {
     values: Vec<Option<f64>>,
-    font: Font,
+    pub font: Font,
     pub highlight: Option<Highlight>,
 }
 
@@ -108,14 +47,20 @@ impl Graph {
         self
     }
 
-    pub fn font(&mut self, font: &Font) -> &mut Self {
-        self.font = *font;
+    pub fn font_style(&mut self, font_style: &Style) -> &mut Self {
+        self.font.style = *font_style;
+        self
+    }
+
+    pub fn font_weight(&mut self, font_weight: &Weight) -> &mut Self {
+        self.font.weight = *font_weight;
         self
     }
 
     // Giving credit where credit is due: this was heavily inspired by Jiři Šebele's work:
     // https://github.com/jiri/rust-spark.
     pub fn sparkline(&self) -> String {
+        use ansi_term::Style;
         let bars = "▁▂▃▄▅▆▇█";
 
         let mut min = ::std::f64::MAX;
@@ -188,7 +133,7 @@ impl Graph {
         let ratio = if min == max {
             1.
         } else {
-            f64::from(self.font.size()) / (max - min)
+            f64::from(SPARKS_FONT_SIZE) / (max - min)
         };
 
         let mut graph = self.values

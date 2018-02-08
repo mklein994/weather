@@ -146,8 +146,13 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
         pressure_graph.highlight(&position, h);
     }
 
-    if let Some(ref f) = config.font {
-        pressure_graph.font(f);
+    if let Some(ref f) = config.font_style {
+        info!("{:?}", f);
+        pressure_graph.font.style = *f;
+    }
+
+    if let Some(ref w) = config.font_weight {
+        pressure_graph.font.weight = *w;
     }
 
     debug!("pressure graph: {:?}", pressure_graph);
