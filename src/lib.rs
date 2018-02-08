@@ -15,7 +15,7 @@ extern crate weather_icons;
 
 pub mod app;
 pub mod color;
-pub mod config;
+mod config;
 mod error;
 pub mod graph;
 
