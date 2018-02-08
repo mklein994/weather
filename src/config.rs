@@ -1,4 +1,4 @@
-use super::{Result, WeatherError};
+use super::{Result, Error};
 use graph::{Highlight, Style, Weight};
 use std::fs::File;
 use std::io::prelude::*;
@@ -25,6 +25,6 @@ impl Config {
         let mut contents = String::new();
         f.read_to_string(&mut contents)?;
 
-        toml::from_str(&contents).map_err(WeatherError::Toml)
+        toml::from_str(&contents).map_err(Error::Toml)
     }
 }

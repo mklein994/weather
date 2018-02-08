@@ -16,7 +16,7 @@ extern crate weather_icons;
 pub mod app;
 pub mod color;
 pub mod config;
-pub mod error;
+mod error;
 pub mod graph;
 
 use chrono::{DateTime, Local, TimeZone, Timelike};
@@ -29,10 +29,10 @@ use std::io::prelude::*;
 use weather_icons::{Condition, DripIcon, Icon, Moon, Style, Time};
 
 pub use config::Config;
-use error::WeatherError;
+pub use error::Error;
 use graph::Graph;
 
-type Result<T> = std::result::Result<T, WeatherError>;
+type Result<T> = std::result::Result<T, Error>;
 
 pub fn run(config: &Config, matches: &ArgMatches) -> Result<()> {
     let weather_data = get_weather(&config, &matches)?;
@@ -62,7 +62,7 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
         info!("using local file: {}", path);
         let mut f = File::open(path)?;
         f.read_to_string(&mut contents)?;
-        serde_json::from_str(&contents).map_err(WeatherError::Json)
+        serde_json::from_str(&contents).map_err(Error::Json)
     } else {
         let client = Client::new();
         match matches.occurrences_of("historical") {
@@ -93,7 +93,7 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
                             .language(Language::En)
                     },
                 )
-                .map_err(WeatherError::Darksky),
+                .map_err(Error::Darksky),
             _ => client
                 .get_forecast_time_machine(
                     &config.token,
@@ -106,7 +106,7 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
                             .language(Language::En)
                     },
                 )
-                .map_err(WeatherError::Darksky),
+                .map_err(Error::Darksky),
         }
     }
 }
