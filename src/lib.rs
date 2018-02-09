@@ -251,7 +251,7 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
             pressure_graph.sparkfont(),
             current_condition_icon,
             output,
-            format!("<span font_desc='Fira Code'>{}</span>", wind_bearing_icon),
+            wind_bearing_icon.to_owned(),
             format!("{} km/h", c.wind_speed.unwrap().round() as i32),
             moon,
         ].join(" ");
