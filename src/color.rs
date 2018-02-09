@@ -17,7 +17,7 @@ impl CloudColors {
 pub static PRECIPITATION_COLORS: &'static [u32] =
     &[0xeeeef5, 0x96b4da, 0x80a5d6, 0x4a80c7, 0x3267ad];
 
-#[derive(Copy, Clone, Debug, Default)]
+#[derive(Eq, PartialEq, Copy, Clone, Debug, Default)]
 pub struct Color {
     pub red: u8,
     pub green: u8,
@@ -56,7 +56,7 @@ impl FromStr for Color {
 
 impl From<u32> for Color {
     fn from(c: u32) -> Self {
-        format!("{:08x}", c).parse().unwrap()
+        format!("#{:08x}", c).parse().unwrap()
     }
 }
 
@@ -67,5 +67,39 @@ impl<'de> Deserialize<'de> for Color {
     {
         let s = String::deserialize(deserializer)?;
         FromStr::from_str(&s).map_err(de::Error::custom)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const TEST_COLOR: Color = Color {
+        red: 0x55,
+        green: 0xaa,
+        blue: 0xff,
+        alpha: 0,
+    };
+    const TEST_COLOR_STR: &'static str = "#55aaff00";
+    const TEST_COLOR_U32: u32 = 0x55_aa_ff_00;
+
+    #[test]
+    fn test_color_hex() {
+        assert_eq!(TEST_COLOR_STR, TEST_COLOR.hex());
+    }
+
+    #[test]
+    fn test_color_rgb() {
+        assert_eq!("rgba(85, 170, 255, 0)", TEST_COLOR.rgba());
+    }
+
+    #[test]
+    fn test_color_from_str() {
+        assert_eq!(TEST_COLOR_STR.parse::<Color>().unwrap(), TEST_COLOR);
+    }
+
+    #[test]
+    fn test_color_from_u32() {
+        assert_eq!(TEST_COLOR, Color::from(TEST_COLOR_U32));
     }
 }
