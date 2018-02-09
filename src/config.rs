@@ -1,4 +1,4 @@
-use super::{Result, Error};
+use super::{Error, Result};
 use graph::{Highlight, Style, Weight};
 use std::fs::File;
 use std::io::prelude::*;
