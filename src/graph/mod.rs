@@ -23,7 +23,7 @@ pub struct Graph {
 
 impl Graph {
     pub fn new() -> Self {
-        Graph {
+        Self {
             values: Vec::new(),
             font: Default::default(),
             highlight: None,
