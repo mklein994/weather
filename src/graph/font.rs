@@ -1,6 +1,6 @@
 use std::fmt;
 
-pub const SPARKS_FONT_SIZE: u32 = 100;
+pub const SPARKS_FONT_SIZE: usize = 100;
 
 #[derive(Debug, Clone, Copy, Deserialize)]
 pub enum Weight {

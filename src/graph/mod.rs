@@ -63,23 +63,7 @@ impl Graph {
         use ansi_term::Style;
         let bars = "▁▂▃▄▅▆▇█";
 
-        let mut min = ::std::f64::MAX;
-        let mut max = 0.;
-
-        self.values.iter().filter_map(|i| *i).for_each(|i| {
-            if i > max {
-                max = i;
-            }
-            if i < min {
-                min = i;
-            }
-        });
-
-        let ratio = if min == max {
-            1.
-        } else {
-            (bars.chars().count() - 1) as f64 / (max - min)
-        };
+        let (min, _, ratio) = calculate_min_max_and_ratio(&self.values, bars.chars().count() - 1);
 
         let mut graph = self.values
             .iter()
@@ -116,25 +100,8 @@ impl Graph {
 
     // Giving credit where credit is due: this was heavily inspired by Jiři Šebele's work:
     // https://github.com/jiri/rust-spark.
-    // TODO: try to make this code DRY
     pub fn sparkfont(&self) -> String {
-        let mut min = ::std::f64::MAX;
-        let mut max = 0.;
-
-        self.values.iter().filter_map(|i| *i).for_each(|i| {
-            if i > max {
-                max = i;
-            }
-            if i < min {
-                min = i;
-            }
-        });
-
-        let ratio = if min == max {
-            1.
-        } else {
-            f64::from(SPARKS_FONT_SIZE) / (max - min)
-        };
+        let (min, _, ratio) = calculate_min_max_and_ratio(&self.values, SPARKS_FONT_SIZE);
 
         let mut graph = self.values
             .iter()
@@ -168,4 +135,28 @@ impl Graph {
             graph.into_iter().collect::<String>(),
         )
     }
+}
+
+fn calculate_min_max_and_ratio(values: &[Option<f64>], size: usize) -> (f64, f64, f64) {
+    let mut min = ::std::f64::MAX;
+    let mut max = ::std::f64::MIN;
+
+    values.iter().filter_map(|i| *i).for_each(|i| {
+        if i > max {
+            max = i;
+        }
+
+        if i > min {
+            min = i;
+        }
+    });
+
+    // Compare if max and min are equal, as suggested by clippy
+    let ratio = if (max - min).abs() < ::std::f64::EPSILON {
+        1.
+    } else {
+        size as f64 / (max - min)
+    };
+
+    (min, max, ratio)
 }
