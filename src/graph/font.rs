@@ -46,7 +46,7 @@ pub struct Font {
 
 impl Font {
     pub fn new(style: Style, weight: Weight) -> Self {
-        Font { style, weight }
+        Self { style, weight }
     }
 }
 
