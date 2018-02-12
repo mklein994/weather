@@ -10,6 +10,7 @@ clap = { version = "~2.29.0", features = ["wrap_help"] }
 darksky = { version = "0.8.0", features = ["reqwest"], default-features = false }
 dotenv = "0.10.1"
 env_logger = "0.5.1"
+lazy_static = "1.0.0"
 log = "0.4.1"
 reqwest = "0.8"
 serde = "1.0.27"
