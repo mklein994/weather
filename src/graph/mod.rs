@@ -146,7 +146,7 @@ fn calculate_min_max_and_ratio(values: &[Option<f64>], size: usize) -> (f64, f64
             max = i;
         }
 
-        if i > min {
+        if i < min {
             min = i;
         }
     });
@@ -157,6 +157,8 @@ fn calculate_min_max_and_ratio(values: &[Option<f64>], size: usize) -> (f64, f64
     } else {
         size as f64 / (max - min)
     };
+
+    info!("min: {}, max: {}, ratio: {}", min, max, ratio);
 
     (min, max, ratio)
 }
