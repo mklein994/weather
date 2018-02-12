@@ -65,8 +65,9 @@ pub fn build_cli() -> App<'static, 'static> {
                 .long_help(
                     "Make a Time Machine request. Optionally takes a UNIX timestamp. This \
                      conflicts with `debug`, because this program doesn't know beforehand \
-                     whether the local file is historical or current.",
-                ),
+                     whether the local file is historical or current. [default: <now>]",
+                )
+                .hide_default_value(true),
         )
         .subcommand(
             SubCommand::with_name("completions").arg(
