@@ -1,4 +1,11 @@
+use chrono::{Local, Timelike};
 use clap::{App, Arg, Shell, SubCommand};
+
+lazy_static! {
+    // This is the same as $(date -Is), that is, "%Y-%m-%dT%H:%M:%S%:z".
+    // Nanoseconds are stripped away because the Dark Sky API doesn't accept them.
+    static ref NOW: String = Local::now().with_nanosecond(0).unwrap().to_rfc3339();
+}
 
 pub fn build_cli() -> App<'static, 'static> {
     App::new(crate_name!())
@@ -33,7 +40,8 @@ pub fn build_cli() -> App<'static, 'static> {
                     "run with a local file found in ~/.config/",
                     crate_name!(),
                     "/config.toml"
-                )),
+                ))
+                .conflicts_with("historical"),
         )
         .arg(
             Arg::with_name("json")
@@ -52,14 +60,13 @@ pub fn build_cli() -> App<'static, 'static> {
             Arg::with_name("historical")
                 .short("H")
                 .long("historical")
-                .takes_value(true)
+                .default_value(&NOW)
                 .help("Make a Time Machine request")
                 .long_help(
                     "Make a Time Machine request. Optionally takes a UNIX timestamp. This \
                      conflicts with `debug`, because this program doesn't know beforehand \
                      whether the local file is historical or current.",
-                )
-                .conflicts_with("debug"),
+                ),
         )
         .subcommand(
             SubCommand::with_name("completions").arg(
