@@ -6,7 +6,7 @@ authors = ["Matthew Klein <mklein994@gmail.com>"]
 [dependencies]
 ansi_term = "0.10.2"
 chrono = "0.4.0"
-clap = { version = "~2.29.0", features = ["wrap_help"] }
+clap = { version = "2.29.0", features = ["wrap_help"] }
 darksky = { version = "0.8.0", features = ["reqwest"], default-features = false }
 dotenv = "0.10.1"
 env_logger = "0.5.1"
