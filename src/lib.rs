@@ -67,6 +67,18 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
         serde_json::from_str(&contents).map_err(Error::Json)
     } else {
         let client = Client::new();
+
+        let get_options = |o: darksky::Options| -> darksky::Options {
+            let o = o.exclude(vec![Block::Minutely])
+                .unit(Unit::Ca)
+                .language(Language::En);
+            if matches.is_present("extend_hourly") {
+                o.extend_hourly()
+            } else {
+                o
+            }
+        };
+
         match matches.occurrences_of("historical") {
             0 => client
                 .get_forecast_with_options(
@@ -89,11 +101,7 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
                     } else {
                         config.lon
                     },
-                    |o| {
-                        o.exclude(vec![Block::Minutely])
-                            .unit(Unit::Ca)
-                            .language(Language::En)
-                    },
+                    get_options,
                 )
                 .map_err(Error::Darksky),
             _ => client
@@ -102,11 +110,7 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
                     config.lat,
                     config.lon,
                     matches.value_of("historical").unwrap(),
-                    |o| {
-                        o.exclude(vec![Block::Minutely])
-                            .unit(Unit::Ca)
-                            .language(Language::En)
-                    },
+                    get_options,
                 )
                 .map_err(Error::Darksky),
         }

@@ -53,7 +53,7 @@ pub fn build_cli() -> App<'static, 'static> {
             Arg::with_name("local")
                 .long("local")
                 .help("use a local file as test data")
-                .conflicts_with_all(&["debug", "historical"])
+                .conflicts_with_all(&["extend_hourly", "debug", "historical"])
                 .takes_value(true),
         )
         .arg(
@@ -68,6 +68,13 @@ pub fn build_cli() -> App<'static, 'static> {
                      whether the local file is historical or current. [default: <now>]",
                 )
                 .hide_default_value(true),
+        )
+        .arg(
+            Arg::with_name("extend_hourly")
+                .short("e")
+                .long("extend")
+                .help("Extend the hourly forecast from 48 hours to 168 hours.")
+                .conflicts_with_all(&["debug", "historical"]),
         )
         .subcommand(
             SubCommand::with_name("completions").arg(
