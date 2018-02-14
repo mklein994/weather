@@ -217,6 +217,10 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
             pressure_graph.sparkfont(),
             current_condition_icon,
             output,
+            format!(
+                "<span font_desc='dripicons-weather'>{}</span>",
+                DripIcon::Flag
+            ),
             wind_bearing_icon.to_owned(),
             format!(
                 "{} km/h",
