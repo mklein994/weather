@@ -56,7 +56,7 @@ impl FromStr for Color {
 
 impl From<u32> for Color {
     fn from(c: u32) -> Self {
-        format!("#{:08x}", c).parse().unwrap()
+        format!("#{:08x}", c).parse().expect("couldn't parse as a color")
     }
 }
 

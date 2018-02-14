@@ -31,7 +31,7 @@ fn main() {
     } else {
         let settings_path = matches.value_of("config").map_or(
             env::home_dir()
-                .unwrap()
+                .expect("couldn't determine home directory")
                 .join(".config")
                 .join(env!("CARGO_PKG_NAME"))
                 .join("config.toml"),

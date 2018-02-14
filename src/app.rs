@@ -4,7 +4,7 @@ use clap::{App, Arg, Shell, SubCommand};
 lazy_static! {
     // This is the same as $(date -Is), that is, "%Y-%m-%dT%H:%M:%S%:z".
     // Nanoseconds are stripped away because the Dark Sky API doesn't accept them.
-    static ref NOW: String = Local::now().with_nanosecond(0).unwrap().to_rfc3339();
+    static ref NOW: String = Local::now().with_nanosecond(0).expect("couldn't create local time with 0 nanoseconds").to_rfc3339();
 }
 
 pub fn build_cli() -> App<'static, 'static> {

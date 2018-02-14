@@ -58,7 +58,10 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
         let path = if let Some(p) = matches.value_of("local") {
             p.to_string()
         } else {
-            config.local.clone().unwrap()
+            config
+                .local
+                .clone()
+                .expect("couldn't get the local path from the config")
         };
 
         info!("using local file: {}", path);
@@ -101,7 +104,9 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
                     &config.token,
                     config.lat,
                     config.lon,
-                    matches.value_of("historical").unwrap(),
+                    matches
+                        .value_of("historical")
+                        .expect("couldn't read argument to historical option"),
                     get_options,
                 )
                 .map_err(Error::Darksky),
@@ -110,21 +115,23 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
 }
 
 pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::models::Forecast) {
-    let c = weather.currently.unwrap();
-    let d = weather.daily.unwrap();
-    let h = weather.hourly.unwrap();
+    let c = weather.currently.expect("current weather missing");
+    let d = weather.daily.expect("daily weather forecast missing");
+    let h = weather.hourly.expect("hourly weather forecast missing");
 
-    let hourly_data = h.data.unwrap();
-    let daily_data = d.data.unwrap();
+    let hourly_data = h.data.expect("hourly data missing");
+    let daily_data = d.data.expect("daily data missing");
 
     let degrees = "°";
 
     let mut output = format!(
         "{current_temp}{degrees} {summary}. ({feels_like_temp}{degrees})",
         degrees = degrees,
-        current_temp = c.temperature.unwrap().round(),
-        summary = c.summary.clone().unwrap(),
-        feels_like_temp = c.apparent_temperature.unwrap().round()
+        current_temp = c.temperature.expect("current temperature missing").round(),
+        summary = c.summary.clone().expect("current summary missing"),
+        feels_like_temp = c.apparent_temperature
+            .expect("current apparent temperature missing")
+            .round()
     );
 
     let pressures: Vec<Option<f64>> = hourly_data.iter().map(|d| d.pressure).collect();
@@ -157,19 +164,20 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
     debug!("pressure graph sparkline: {:?}", pressure_graph.sparkline());
     debug!("pressure graph sparkfont: {:?}", pressure_graph.sparkfont());
 
-    let daily_temperatures: Vec<Option<f64>> = daily_data
-        .iter()
-        .map(|d| {
-            debug!("daily high temp: {}", d.temperature_high.unwrap());
-            d.temperature_high
-        })
-        .collect();
+    let daily_temperatures: Vec<Option<f64>> =
+        daily_data.iter().map(|d| d.temperature_high).collect();
 
     let daily_temperature_spark_graph = Graph::new().values(&daily_temperatures).sparkline();
 
     let (sunrise, sunset) = (
-        Local.timestamp(daily_data[0].sunrise_time.unwrap() as i64, 0),
-        Local.timestamp(daily_data[0].sunset_time.unwrap() as i64, 0),
+        Local.timestamp(
+            daily_data[0].sunrise_time.expect("sunrise time missing") as i64,
+            0,
+        ),
+        Local.timestamp(
+            daily_data[0].sunset_time.expect("sunset time missing") as i64,
+            0,
+        ),
     );
 
     if matches.is_present("i3") {
@@ -218,14 +226,12 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
         };
         */
 
-        debug!("{:?}", &c.icon.unwrap());
-
         let current_condition_icon = format!(
             //"<span font_desc='Weather Icons'>{icon}</span>",
             "<span font_desc='dripicons-weather'>{icon}</span>",
             icon = DripIcon::from(get_current_condition_icon(
                 //icon = get_current_condition_icon(
-                &c.icon.unwrap(),
+                &c.icon.expect("current icon missing"),
                 //&precipitation,
                 &Local::now(),
                 &sunrise,
@@ -233,14 +239,20 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
             ))
         );
 
-        let wind_bearing_icon = get_wind_bearing_icon(c.wind_bearing.unwrap().trunc() as u32);
+        let wind_bearing_icon = get_wind_bearing_icon(c.wind_bearing
+            .expect("current wind bearing missing")
+            .trunc() as u32);
 
         let moon = format!(
             "<span font_desc='Weather Icons'>{}</span>",
             Moon::new()
                 .style(Style::Primary)
-                .phase(daily_data[0].moon_phase.unwrap())
-                .unwrap()
+                .phase(
+                    daily_data[0]
+                        .moon_phase
+                        .expect("first day moon phase missing")
+                )
+                .expect("couldn't parse moon phase")
                 .build()
         );
 
@@ -250,7 +262,10 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
             current_condition_icon,
             output,
             wind_bearing_icon.to_owned(),
-            format!("{} km/h", c.wind_speed.unwrap().round() as i32),
+            format!(
+                "{} km/h",
+                c.wind_speed.expect("current wind speed missing").round() as i32
+            ),
             moon,
         ].join(" ");
     }
@@ -400,7 +415,7 @@ fn get_wind_bearing_icon<'a>(bearing: u32) -> &'a str {
     } else {
         // Because we've adjusted the range, this won't catch bearings between 337°
         // and 22°, so assume this is pointing north.
-        arrows.last().unwrap()
+        arrows.last().expect("couldn't get the last arrow")
     }
 }
 

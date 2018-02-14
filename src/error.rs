@@ -20,11 +20,11 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Clap(ref err) => write!(f, "{}", err),
-            Darksky(ref err) => write!(f, "Darksky error: {}", err),
-            Io(ref err) => write!(f, "IO error: {}", err),
-            Json(ref err) => write!(f, "Serde JSON error: {}", err),
-            Toml(ref err) => write!(f, "Toml deserialize error: {}", err),
+            Clap(ref err) => err.fmt(f),
+            Darksky(ref err) => err.fmt(f),
+            Io(ref err) => err.fmt(f),
+            Json(ref err) => err.fmt(f),
+            Toml(ref err) => err.fmt(f),
         }
     }
 }
