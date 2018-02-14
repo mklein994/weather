@@ -183,56 +183,12 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
     if matches.is_present("i3") {
         let pressure_icon = format!("<span font_desc='Weather Icons'>{}</span>", Icon::Barometer);
 
-        /*
-         * clear             clear
-         *
-         * light-clouds      partly cloudy
-         * heavy-clouds      overcast
-         *
-         * very-light-rain   drizzle
-         * light-rain        light rain
-         * medium-rain       rain
-         * heavy-rain        heavy rain
-         *
-         * very-light-sleet  light sleet
-         * light-sleet       light sleet
-         * medium-sleet      sleet
-         * heavy-sleet       heavy sleet
-         *
-         * very-light-snow   flurries
-         * light-snow        light snow
-         * medium-snow       snow
-         * heavy-snow        heavy snow
-         */
-        /*
-        let precipitation = Precipitation::new(
-            &c.precip_probability.unwrap_or(0.),
-            &c.precip_intensity.unwrap_or(0.),
-            &c.precip_accumulation,
-            &c.precip_type,
-        );
-        */
-
-        /*
-        let precipitation = if *precip_probability == 0. {
-            None
-        } else {
-            Precipitation::new(
-                &c.precip_probability,
-                &c.precip_intensity,
-                &c.precip_accumulation,
-                &c.precip_type,
-            )
-        };
-        */
-
         let current_condition_icon = format!(
             //"<span font_desc='Weather Icons'>{icon}</span>",
             "<span font_desc='dripicons-weather'>{icon}</span>",
             icon = DripIcon::from(get_current_condition_icon(
                 //icon = get_current_condition_icon(
                 &c.icon.expect("current icon missing"),
-                //&precipitation,
                 &Local::now(),
                 &sunrise,
                 &sunset
@@ -286,51 +242,8 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
     }
 }
 
-/*
-/*
-probability: f64,
-intensity: f64,
-accumulation: Option<f64>,
-precip_type: Option<darksky::models::PrecipitationType>,
-*/
-struct Precipitation {}
-
-impl Precipitation {
-    fn new(
-        probability: &f64,
-        intensity: &f64,
-        accumulation: &Option<f64>,
-        precip_type: &Option<darksky::models::PrecipitationType>,
-    ) -> Option<Self> {
-        use darksky::models::PrecipitationType;
-
-        if *probability == 0. || *intensity == 0. {
-            return None
-        } else {
-            if let Some(pt) = precip_type {
-                match *pt {
-                    PrecipitationType::Rain | PrecipitationType::Sleet => unimplemented!(),
-                    PrecipitationType::Snow => unimplemented!(),
-                }
-            }
-        }
-
-        /*
-        let probability = (*probability)?;
-        if let Some(p) = precip_type.and_then(|p| p == PrecipitationType::Snow) {
-            unimplemented!()
-        }
-        //debug_assert!(*intensity >= 0. && *intensity <= 1.);
-        */
-
-        unimplemented!()
-    }
-}
-*/
-
 fn get_current_condition_icon(
     icon: &DarkskyIcon,
-    //precipitation: &Option<Precipitation>,
     now: &DateTime<Local>,
     sunrise: &DateTime<Local>,
     sunset: &DateTime<Local>,
