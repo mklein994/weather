@@ -84,20 +84,12 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
                 .get_forecast_with_options(
                     &config.token,
                     if matches.is_present("latitude") {
-                        matches
-                            .value_of("latitude")
-                            .unwrap()
-                            .parse::<f64>()
-                            .unwrap()
+                        value_t!(matches.value_of("latitude"), f64)?
                     } else {
                         config.lat
                     },
                     if matches.is_present("longitude") {
-                        matches
-                            .value_of("longitude")
-                            .unwrap()
-                            .parse::<f64>()
-                            .unwrap()
+                        value_t!(matches.value_of("longitude"), f64)?
                     } else {
                         config.lon
                     },

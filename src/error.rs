@@ -1,3 +1,4 @@
+use clap;
 use darksky;
 use serde_json;
 use toml;
@@ -9,6 +10,7 @@ use std::io;
 
 #[derive(Debug)]
 pub enum Error {
+    Clap(clap::Error),
     Darksky(darksky::Error),
     Io(io::Error),
     Json(serde_json::Error),
@@ -18,6 +20,7 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
+            Clap(ref err) => write!(f, "{}", err),
             Darksky(ref err) => write!(f, "Darksky error: {}", err),
             Io(ref err) => write!(f, "IO error: {}", err),
             Json(ref err) => write!(f, "Serde JSON error: {}", err),
@@ -29,6 +32,7 @@ impl fmt::Display for Error {
 impl error::Error for Error {
     fn description(&self) -> &str {
         match *self {
+            Clap(ref err) => err.description(),
             Darksky(ref err) => err.description(),
             Io(ref err) => err.description(),
             Json(ref err) => err.description(),
@@ -38,11 +42,18 @@ impl error::Error for Error {
 
     fn cause(&self) -> Option<&error::Error> {
         match *self {
+            Clap(ref err) => Some(err),
             Darksky(ref err) => Some(err),
             Io(ref err) => Some(err),
             Json(ref err) => Some(err),
             Toml(ref err) => Some(err),
         }
+    }
+}
+
+impl From<clap::Error> for Error {
+    fn from(err: clap::Error) -> Self {
+        Clap(err)
     }
 }
 
