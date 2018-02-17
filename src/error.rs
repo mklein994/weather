@@ -7,6 +7,7 @@ use Error::*;
 use std::error;
 use std::fmt;
 use std::io;
+use weather_icons::OutOfBounds;
 
 #[derive(Debug)]
 pub enum Error {
@@ -14,6 +15,7 @@ pub enum Error {
     Darksky(darksky::Error),
     Io(io::Error),
     Json(serde_json::Error),
+    Moon(OutOfBounds),
     Toml(toml::de::Error),
 }
 
@@ -24,6 +26,7 @@ impl fmt::Display for Error {
             Darksky(ref err) => err.fmt(f),
             Io(ref err) => err.fmt(f),
             Json(ref err) => err.fmt(f),
+            Moon(ref err) => err.fmt(f),
             Toml(ref err) => err.fmt(f),
         }
     }
@@ -36,6 +39,7 @@ impl error::Error for Error {
             Darksky(ref err) => err.description(),
             Io(ref err) => err.description(),
             Json(ref err) => err.description(),
+            Moon(ref err) => err.description(),
             Toml(ref err) => err.description(),
         }
     }
@@ -46,6 +50,7 @@ impl error::Error for Error {
             Darksky(ref err) => Some(err),
             Io(ref err) => Some(err),
             Json(ref err) => Some(err),
+            Moon(ref err) => Some(err),
             Toml(ref err) => Some(err),
         }
     }
@@ -76,6 +81,12 @@ impl From<serde_json::Error> for Error {
             Category::Io => Io(err.into()),
             Category::Syntax | Category::Data | Category::Eof => Json(err),
         }
+    }
+}
+
+impl From<OutOfBounds> for Error {
+    fn from(err: OutOfBounds) -> Self {
+        Moon(err)
     }
 }
 

@@ -1059,7 +1059,7 @@ dependencies = [
 [[package]]
 name = "weather_icons"
 version = "0.4.0"
-source = "git+https://github.com/mklein994/weather_icons#e50970706b2c8135ffd2d197ae013b2b62bec348"
+source = "git+https://github.com/mklein994/weather_icons#1dc57282c77f0a590d5dca23e5384f057202edd0"
 
 [[package]]
 name = "winapi"

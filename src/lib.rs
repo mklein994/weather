@@ -45,7 +45,7 @@ pub fn run(config: &Config, matches: &ArgMatches) -> Result<()> {
                 .expect("couldn't convert weather data back to json")
         );
     } else {
-        print_weather(matches, config, weather_data);
+        print_weather(matches, config, weather_data)?;
     }
 
     Ok(())
@@ -114,7 +114,11 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
     }
 }
 
-pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::models::Forecast) {
+pub fn print_weather(
+    matches: &ArgMatches,
+    config: &Config,
+    weather: darksky::models::Forecast,
+) -> Result<()> {
     let c = weather.currently.expect("current weather missing");
     let d = weather.daily.expect("daily weather forecast missing");
     let h = weather.hourly.expect("hourly weather forecast missing");
@@ -206,7 +210,7 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
                     .moon_phase
                     .expect("first day moon phase missing"),
                 &Style::Primary
-            ).expect("couldn't parse moon phase")
+            )?
         );
 
         output = [
@@ -241,6 +245,8 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
             d.summary.unwrap_or_else(|| "no daily summary".to_owned())
         );
     }
+
+    Ok(())
 }
 
 fn get_current_condition_icon(
