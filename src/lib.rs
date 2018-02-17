@@ -28,7 +28,7 @@ use darksky::models::Icon as DarkskyIcon;
 use reqwest::Client;
 use std::fs::File;
 use std::io::prelude::*;
-use weather_icons::{Condition, DripIcon, Icon, Moon, Style, Time};
+use weather_icons::{Condition, DripIcon, Icon, Moon, Time};
 
 pub use config::Config;
 pub use error::Error;
@@ -209,7 +209,7 @@ pub fn print_weather(
                 daily_data[0]
                     .moon_phase
                     .expect("first day moon phase missing"),
-                &Style::Primary
+                &config.moon_style
             )?
         );
 

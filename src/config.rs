@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
 use toml;
+use weather_icons::Style as MoonStyle;
 
 #[derive(Debug, Default, Deserialize)]
 pub struct Config {
@@ -16,6 +17,8 @@ pub struct Config {
     pub font_weight: Option<Weight>,
     pub highlight: Option<Highlight>,
     pub local: Option<String>,
+    #[serde(with = "MoonStyleRemote", default = "Default::default")]
+    pub moon_style: MoonStyle,
 }
 
 impl Config {
@@ -27,4 +30,14 @@ impl Config {
 
         toml::from_str(&contents).map_err(Error::Toml)
     }
+}
+
+#[allow(dead_code)]
+#[derive(Serialize, Deserialize)]
+#[serde(remote = "MoonStyle")]
+enum MoonStyleRemote {
+    #[serde(rename = "primary")]
+    Primary,
+    #[serde(rename = "alt")]
+    Alt,
 }
