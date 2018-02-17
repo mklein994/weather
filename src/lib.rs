@@ -201,15 +201,12 @@ pub fn print_weather(matches: &ArgMatches, config: &Config, weather: darksky::mo
 
         let moon = format!(
             "<span font_desc='Weather Icons'>{}</span>",
-            Moon::new()
-                .style(Style::Primary)
-                .phase(
-                    daily_data[0]
-                        .moon_phase
-                        .expect("first day moon phase missing")
-                )
-                .expect("couldn't parse moon phase")
-                .build()
+            Moon::new(
+                daily_data[0]
+                    .moon_phase
+                    .expect("first day moon phase missing"),
+                &Style::Primary
+            ).expect("couldn't parse moon phase")
         );
 
         output = [
