@@ -34,7 +34,13 @@ pub use config::Config;
 pub use error::Error;
 use graph::Graph;
 
-type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
+
+pub fn run_new(config: Config) -> Result<()> {
+    let weather_data = get_weather_new(&config)?;
+
+    unimplemented!()
+}
 
 pub fn run(config: &Config, matches: &ArgMatches) -> Result<()> {
     let weather_data = get_weather(&config, &matches)?;
@@ -49,6 +55,69 @@ pub fn run(config: &Config, matches: &ArgMatches) -> Result<()> {
     }
 
     Ok(())
+}
+
+fn get_weather_new(config: &Config) -> Result<darksky::models::Forecast> {
+    if config.is_present("debug") || matches.is_present("local") {
+        let mut contents = String::new();
+
+        let path = if let Some(p) = matches.value_of("local") {
+            p.to_string()
+        } else {
+            config
+                .local
+                .clone()
+                .expect("couldn't get the local path from the config")
+        };
+
+        info!("using local file: {}", path);
+        let mut f = File::open(path)?;
+        f.read_to_string(&mut contents)?;
+        serde_json::from_str(&contents).map_err(Error::Json)
+    } else {
+        let client = Client::new();
+
+        let get_options = |o: darksky::Options| -> darksky::Options {
+            let o = o.exclude(vec![Block::Minutely])
+                .unit(Unit::Ca)
+                .language(Language::En);
+            if matches.is_present("extend_hourly") {
+                o.extend_hourly()
+            } else {
+                o
+            }
+        };
+
+        match matches.occurrences_of("historical") {
+            0 => client
+                .get_forecast_with_options(
+                    &config.token,
+                    if matches.is_present("latitude") {
+                        value_t!(matches.value_of("latitude"), f64)?
+                    } else {
+                        config.lat
+                    },
+                    if matches.is_present("longitude") {
+                        value_t!(matches.value_of("longitude"), f64)?
+                    } else {
+                        config.lon
+                    },
+                    get_options,
+                )
+                .map_err(Error::Darksky),
+            _ => client
+                .get_forecast_time_machine(
+                    &config.token,
+                    config.lat,
+                    config.lon,
+                    matches
+                        .value_of("historical")
+                        .expect("couldn't read argument to historical option"),
+                    get_options,
+                )
+                .map_err(Error::Darksky),
+        }
+    }
 }
 
 fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models::Forecast> {
