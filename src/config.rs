@@ -34,10 +34,8 @@ impl Config {
 
 #[allow(dead_code)]
 #[derive(Serialize, Deserialize)]
-#[serde(remote = "MoonStyle")]
+#[serde(remote = "MoonStyle", rename_all = "kebab-case")]
 enum MoonStyleRemote {
-    #[serde(rename = "primary")]
     Primary,
-    #[serde(rename = "alt")]
     Alt,
 }

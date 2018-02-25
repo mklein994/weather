@@ -3,16 +3,12 @@ use std::fmt;
 pub const SPARKS_FONT_SIZE: usize = 100;
 
 #[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum Weight {
-    #[serde(rename = "extra-small")]
     ExtraSmall,
-    #[serde(rename = "small")]
     Small,
-    #[serde(rename = "medium")]
     Medium,
-    #[serde(rename = "large")]
     Large,
-    #[serde(rename = "extra-large")]
     ExtraLarge,
 }
 
@@ -23,12 +19,10 @@ impl Default for Weight {
 }
 
 #[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum Style {
-    #[serde(rename = "bar")]
     Bar,
-    #[serde(rename = "dot")]
     Dot,
-    #[serde(rename = "dot-line")]
     DotLine,
 }
 
