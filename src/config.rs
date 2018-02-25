@@ -21,6 +21,7 @@ pub struct Config {
     // Represents `pub moon_style: Option<MoonStyle>`
     #[serde(with = "MoonStyleRemote", default = "Default::default")]
     pub moon_style: MoonStyle,
+    pub icon_style: Option<IconStyle>,
 }
 
 impl Config {
@@ -40,4 +41,17 @@ impl Config {
 enum MoonStyleRemote {
     Primary,
     Alt,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum IconStyle {
+    WeatherIcons,
+    Dripicons,
+}
+
+impl Default for IconStyle {
+    fn default() -> Self {
+        IconStyle::WeatherIcons
+    }
 }
