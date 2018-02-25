@@ -8,6 +8,7 @@ pub use self::font::Style;
 use color::Color;
 
 #[derive(Copy, Clone, Debug, Default, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Highlight {
     pub position: Option<usize>,
     pub fg: Option<Color>,

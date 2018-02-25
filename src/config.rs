@@ -7,6 +7,7 @@ use toml;
 use weather_icons::Style as MoonStyle;
 
 #[derive(Debug, Default, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     pub token: String,
     pub lat: f64,

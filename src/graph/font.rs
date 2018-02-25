@@ -33,6 +33,7 @@ impl Default for Style {
 }
 
 #[derive(Debug, Default, Clone, Copy, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Font {
     pub style: Style,
     pub weight: Weight,
