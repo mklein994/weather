@@ -18,6 +18,7 @@ pub struct Config {
     pub font_weight: Option<Weight>,
     pub highlight: Option<Highlight>,
     pub local: Option<String>,
+    // Represents `pub moon_style: Option<MoonStyle>`
     #[serde(with = "MoonStyleRemote", default = "Default::default")]
     pub moon_style: MoonStyle,
 }
