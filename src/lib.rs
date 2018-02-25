@@ -28,7 +28,7 @@ use darksky::models::Icon as DarkskyIcon;
 use reqwest::Client;
 use std::fs::File;
 use std::io::prelude::*;
-use weather_icons::{Condition, DripIcon, Icon, Moon, Time};
+use weather_icons::{Condition, DripIcon, WeatherIcon, Moon, Time};
 
 pub use config::Config;
 pub use error::Error;
@@ -185,7 +185,7 @@ pub fn print_weather(
     );
 
     if matches.is_present("i3") {
-        let pressure_icon = format!("<span font_desc='Weather Icons'>{}</span>", Icon::Barometer);
+        let pressure_icon = format!("<span font_desc='Weather Icons'>{}</span>", WeatherIcon::Barometer);
 
         let current_condition_icon = format!(
             //"<span font_desc='Weather Icons'>{icon}</span>",
@@ -254,7 +254,7 @@ fn get_current_condition_icon(
     now: &DateTime<Local>,
     sunrise: &DateTime<Local>,
     sunset: &DateTime<Local>,
-) -> Icon {
+) -> WeatherIcon {
     let time = if *now >= *sunrise && *now <= *sunset {
         Time::Day
     } else {
@@ -262,8 +262,8 @@ fn get_current_condition_icon(
     };
 
     let new_icon = match *icon {
-        DarkskyIcon::Tornado => Some(Icon::Tornado),
-        DarkskyIcon::Wind => Some(Icon::Windy),
+        DarkskyIcon::Tornado => Some(WeatherIcon::Tornado),
+        DarkskyIcon::Wind => Some(WeatherIcon::Windy),
         _ => match *icon {
             DarkskyIcon::ClearNight | DarkskyIcon::ClearDay => Condition::Fair,
             DarkskyIcon::Cloudy => Condition::Cloudy,
