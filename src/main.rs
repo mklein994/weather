@@ -15,7 +15,7 @@ fn main() {
     env_logger::try_init().expect("failed to initialize logger");
 
     let matches = app::build_cli().get_matches();
-    debug!("app matches: {:#?}", matches);
+    debug!("app matches:\n{:#?}", matches);
 
     if let ("completions", Some(completion_matches)) = matches.subcommand() {
         debug!("completion matches: {:#?}", completion_matches);
@@ -47,6 +47,8 @@ fn main() {
             );
             std::process::exit(1);
         });
+
+        debug!("config.toml:\n{:#?}", config);
 
         if let Err(e) = weather::run(&config, &matches) {
             eprintln!("{}", e);
