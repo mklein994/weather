@@ -28,7 +28,7 @@ use darksky::models::Icon as DarkskyIcon;
 use reqwest::Client;
 use std::fs::File;
 use std::io::prelude::*;
-use weather_icons::{Condition, DripIcon, WeatherIcon, Moon, Time};
+use weather_icons::{Condition, DripIcon, Moon, Time, WeatherIcon};
 
 pub use config::Config;
 pub use error::Error;
@@ -185,7 +185,10 @@ pub fn print_weather(
     );
 
     if matches.is_present("i3") {
-        let pressure_icon = format!("<span font_desc='Weather Icons'>{}</span>", WeatherIcon::Barometer);
+        let pressure_icon = format!(
+            "<span font_desc='Weather Icons'>{}</span>",
+            WeatherIcon::Barometer
+        );
 
         let current_condition_icon = format!(
             //"<span font_desc='Weather Icons'>{icon}</span>",
