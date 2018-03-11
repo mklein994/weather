@@ -26,6 +26,7 @@ use clap::ArgMatches;
 use darksky::{Block, DarkskyReqwestRequester, Language, Unit};
 use darksky::models::Icon as DarkskyIcon;
 use reqwest::Client;
+use std::fmt;
 use std::fs::File;
 use std::io::prelude::*;
 use weather_icons::{Condition, DripIcon, Moon, Time, WeatherIcon};
@@ -114,6 +115,69 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
     }
 }
 
+#[derive(Debug, Default)]
+struct WeatherOutput {
+    use_pango: bool,
+    use_icons: bool,
+    current_condition_icon: DripIcon,
+    current_feels_like_temp: Option<f64>,
+    current_summary: Option<String>,
+    current_temp: Option<f64>,
+    daily_temperature_graph: Option<graph::Graph>,
+    daily_pressure_graph: Option<graph::Graph>,
+    moon: Moon,
+    pressure_graph: Option<graph::Graph>,
+    sunrise: Option<f64>,
+    sunset: Option<f64>,
+    wind_icon: Option<String>,
+}
+
+impl fmt::Display for WeatherOutput {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(ref g) = self.daily_pressure_graph {
+            if self.use_icons {
+                if self.use_pango {
+                    write!(
+                        f,
+                        "<span font_desc='Weather Icons'>{}</span> ",
+                        WeatherIcon::Barometer,
+                    )?;
+                } else {
+                    write!(f, "{} ", WeatherIcon::Barometer)?;
+                }
+            }
+
+            if self.use_pango {
+                write!(f, "{} ", g.sparkfont())?;
+            } else {
+                write!(f, "{} ", g.sparkline())?;
+            }
+        }
+
+        if self.use_pango {
+            write!(
+                f,
+                "<span font_desc='Dripicons'>{}</span> ",
+                self.current_condition_icon
+            )?;
+        }
+
+        if let Some(ref t) = self.current_temp {
+            write!(f, "{}° ", t)?;
+        }
+
+        if let Some(ref s) = self.current_summary {
+            write!(f, "{}. ", s)?;
+        }
+
+        if let Some(ref t) = self.current_feels_like_temp {
+            write!(f, "({}°) ", t)?;
+        }
+
+        Ok(())
+    }
+}
+
 pub fn print_weather(
     matches: &ArgMatches,
     config: &Config,
@@ -126,8 +190,16 @@ pub fn print_weather(
     let hourly_data = h.data.expect("hourly data missing");
     let daily_data = d.data.expect("daily data missing");
 
-    let degrees = "°";
+    let mut output = WeatherOutput {
+        //use_pango: true,
+        //use_icons: true,
+        current_temp: c.temperature.map(|t| t.round()),
+        current_summary: c.summary.to_owned(),
+        current_feels_like_temp: c.apparent_temperature.map(|t| t.round()),
+        ..Default::default()
+    };
 
+    /*
     let mut output = format!(
         "{current_temp}{degrees} {summary}. ({feels_like_temp}{degrees})",
         degrees = degrees,
@@ -137,6 +209,7 @@ pub fn print_weather(
             .expect("current apparent temperature missing")
             .round()
     );
+    */
 
     let pressures: Vec<Option<f64>> = hourly_data.iter().map(|d| d.pressure).collect();
 
@@ -164,9 +237,11 @@ pub fn print_weather(
         pressure_graph.font.weight = *w;
     }
 
-    debug!("pressure graph: {:?}", pressure_graph);
-    debug!("pressure graph sparkline: {:?}", pressure_graph.sparkline());
-    debug!("pressure graph sparkfont: {:?}", pressure_graph.sparkfont());
+    output.daily_pressure_graph = Some(pressure_graph);
+
+    //debug!("pressure graph: {:?}", pressure_graph);
+    //debug!("pressure graph sparkline: {:?}", pressure_graph.sparkline());
+    //debug!("pressure graph sparkfont: {:?}", pressure_graph.sparkfont());
 
     let daily_temperatures: Vec<Option<f64>> =
         daily_data.iter().map(|d| d.temperature_high).collect();
@@ -216,6 +291,7 @@ pub fn print_weather(
             )?
         );
 
+        /*
         output = [
             pressure_icon,
             pressure_graph.sparkfont(),
@@ -232,12 +308,15 @@ pub fn print_weather(
             ),
             moon,
         ].join(" ");
+        */
     }
+
+    info!("{:#?}", output);
 
     println!("{}", output);
 
     if matches.is_present("long") {
-        println!("hourly pressure forecast:\n{}", pressure_graph.sparkline());
+        //println!("hourly pressure forecast:\n{}", pressure_graph.sparkline());
         println!("temperatures this week:\n{}", daily_temperature_spark_graph);
         println!(
             "{}",
