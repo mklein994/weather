@@ -2,9 +2,9 @@ mod font;
 
 use ansi_term;
 
-pub use self::font::{Font, Weight};
 use self::font::SPARKS_FONT_SIZE;
 pub use self::font::Style;
+pub use self::font::{Font, Weight};
 use color::Color;
 
 #[derive(Copy, Clone, Debug, Default, Deserialize)]

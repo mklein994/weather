@@ -23,8 +23,8 @@ pub mod graph;
 
 use chrono::{DateTime, Local, TimeZone, Timelike};
 use clap::ArgMatches;
-use darksky::{Block, DarkskyReqwestRequester, Language, Unit};
 use darksky::models::Icon as DarkskyIcon;
+use darksky::{Block, DarkskyReqwestRequester, Language, Unit};
 use reqwest::Client;
 use std::fs::File;
 use std::io::prelude::*;
