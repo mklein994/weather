@@ -3,11 +3,11 @@ use darksky;
 use serde_json;
 use toml;
 
-use Error::*;
 use std::error;
 use std::fmt;
 use std::io;
 use weather_icons::OutOfBounds;
+use Error::*;
 
 #[derive(Debug)]
 pub enum Error {

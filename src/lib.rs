@@ -72,7 +72,8 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
         let client = Client::new();
 
         let get_options = |o: darksky::Options| -> darksky::Options {
-            let o = o.exclude(vec![Block::Minutely])
+            let o = o
+                .exclude(vec![Block::Minutely])
                 .unit(Unit::Ca)
                 .language(Language::En);
             if matches.is_present("extend_hourly") {
@@ -133,7 +134,8 @@ pub fn print_weather(
         degrees = degrees,
         current_temp = c.temperature.expect("current temperature missing").round(),
         summary = c.summary.clone().expect("current summary missing"),
-        feels_like_temp = c.apparent_temperature
+        feels_like_temp = c
+            .apparent_temperature
             .expect("current apparent temperature missing")
             .round()
     );
@@ -202,9 +204,11 @@ pub fn print_weather(
             ))
         );
 
-        let wind_bearing_icon = get_wind_bearing_icon(c.wind_bearing
-            .expect("current wind bearing missing")
-            .trunc() as u32);
+        let wind_bearing_icon = get_wind_bearing_icon(
+            c.wind_bearing
+                .expect("current wind bearing missing")
+                .trunc() as u32,
+        );
 
         let moon = format!(
             "<span font_desc='Weather Icons'>{}</span>",

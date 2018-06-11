@@ -2,8 +2,8 @@ mod font;
 
 use ansi_term;
 
-use self::font::SPARKS_FONT_SIZE;
 pub use self::font::Style;
+use self::font::SPARKS_FONT_SIZE;
 pub use self::font::{Font, Weight};
 use color::Color;
 
@@ -66,7 +66,8 @@ impl Graph {
 
         let (min, _, ratio) = calculate_min_max_and_ratio(&self.values, bars.chars().count() - 1);
 
-        let mut graph = self.values
+        let mut graph = self
+            .values
             .iter()
             .map(|value| {
                 if let Some(i) = *value {
@@ -104,7 +105,8 @@ impl Graph {
     pub fn sparkfont(&self) -> String {
         let (min, _, ratio) = calculate_min_max_and_ratio(&self.values, SPARKS_FONT_SIZE);
 
-        let mut graph = self.values
+        let mut graph = self
+            .values
             .iter()
             .map(|n| n.unwrap_or_else(|| 0.))
             .map(|n| (n - min) * ratio)
