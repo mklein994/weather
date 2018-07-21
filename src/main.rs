@@ -4,10 +4,10 @@ extern crate dotenv;
 extern crate env_logger;
 #[macro_use]
 extern crate log;
+extern crate dirs;
 extern crate weather;
 
 use clap::Shell;
-use std::env;
 use std::path::PathBuf;
 use weather::{app, Config};
 
@@ -30,7 +30,7 @@ fn main() {
         app::build_cli().gen_completions_to(crate_name!(), shell, &mut std::io::stdout());
     } else {
         let settings_path = matches.value_of("config").map_or(
-            env::home_dir()
+            dirs::home_dir()
                 .expect("couldn't determine home directory")
                 .join(".config")
                 .join(env!("CARGO_PKG_NAME"))
