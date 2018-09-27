@@ -235,7 +235,8 @@ pub fn print_weather(
                 c.wind_speed.expect("current wind speed missing").round() as i32
             ),
             moon,
-        ].join(" ");
+        ]
+            .join(" ");
     }
 
     println!("{}", output);
@@ -284,7 +285,8 @@ fn get_current_condition_icon(
             DarkskyIcon::Snow => Condition::Snow,
             DarkskyIcon::Thunderstorm => Condition::Thunderstorm,
             _ => unreachable!(),
-        }.variant(time),
+        }
+        .variant(time),
     };
 
     new_icon.unwrap_or_default()
