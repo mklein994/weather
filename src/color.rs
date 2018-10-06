@@ -10,14 +10,14 @@ pub struct Color {
 }
 
 impl Color {
-    pub fn hex(&self) -> String {
+    pub fn hex(self) -> String {
         format!(
             "#{:02x}{:02x}{:02x}{:02x}",
             self.red, self.green, self.blue, self.alpha,
         )
     }
 
-    pub fn rgba(&self) -> String {
+    pub fn rgba(self) -> String {
         format!(
             "rgba({}, {}, {}, {})",
             self.red, self.green, self.blue, self.alpha,

@@ -73,7 +73,7 @@ impl Graph {
                 if let Some(i) = *value {
                     bars.chars()
                         .nth(((i - min) * ratio).floor() as usize)
-                        .expect(&format!("{} is out of bounds", i))
+                        .unwrap_or_else(|| panic!("{} is out of bounds", i))
                         .to_string()
                 } else {
                     " ".to_string()

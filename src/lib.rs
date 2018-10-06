@@ -197,7 +197,7 @@ pub fn print_weather(
             "<span font_desc='dripicons-weather'>{icon}</span>",
             icon = DripIcon::from(get_current_condition_icon(
                 //icon = get_current_condition_icon(
-                &c.icon.expect("current icon missing"),
+                c.icon.expect("current icon missing"),
                 &Local::now(),
                 &sunrise,
                 &sunset
@@ -258,7 +258,7 @@ pub fn print_weather(
 }
 
 fn get_current_condition_icon(
-    icon: &DarkskyIcon,
+    icon: DarkskyIcon,
     now: &DateTime<Local>,
     sunrise: &DateTime<Local>,
     sunset: &DateTime<Local>,
@@ -269,10 +269,10 @@ fn get_current_condition_icon(
         Time::Night
     };
 
-    let new_icon = match *icon {
+    let new_icon = match icon {
         DarkskyIcon::Tornado => Some(WeatherIcon::Tornado),
         DarkskyIcon::Wind => Some(WeatherIcon::Windy),
-        _ => match *icon {
+        _ => match icon {
             DarkskyIcon::ClearNight | DarkskyIcon::ClearDay => Condition::Fair,
             DarkskyIcon::Cloudy => Condition::Cloudy,
             DarkskyIcon::Fog => Condition::Fog,
