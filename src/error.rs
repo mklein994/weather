@@ -7,7 +7,7 @@ use std::error;
 use std::fmt;
 use std::io;
 use weather_icons::OutOfBounds;
-use crate::Error::*;
+use Error::*;
 
 #[derive(Debug)]
 pub enum Error {

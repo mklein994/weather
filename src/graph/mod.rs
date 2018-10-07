@@ -5,7 +5,7 @@ use ansi_term;
 pub use self::font::Style;
 use self::font::SPARKS_FONT_SIZE;
 pub use self::font::{Font, Weight};
-use crate::color::Color;
+use color::Color;
 
 #[derive(Copy, Clone, Debug, Default, Deserialize)]
 #[serde(deny_unknown_fields)]

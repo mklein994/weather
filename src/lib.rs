@@ -30,9 +30,9 @@ use std::fs::File;
 use std::io::prelude::*;
 use weather_icons::{Condition, DripIcon, Moon, Time, WeatherIcon};
 
-pub use crate::config::Config;
-pub use crate::error::Error;
-use crate::graph::Graph;
+pub use config::Config;
+pub use error::Error;
+use graph::Graph;
 
 type Result<T> = std::result::Result<T, Error>;
 
