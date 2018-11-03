@@ -238,7 +238,7 @@ pub fn print_weather(
             ),
             moon,
         ]
-            .join(" ");
+        .join(" ");
     }
 
     println!("{}", output);
