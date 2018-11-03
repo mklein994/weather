@@ -83,8 +83,9 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
             }
         };
 
-        match matches.occurrences_of("historical") {
-            0 => client
+        // Call the appropriate API if showing historical weather.
+        if matches.occurrences_of("historical") == 0 {
+            client
                 .get_forecast_with_options(
                     &config.token,
                     if matches.is_present("latitude") {
@@ -99,8 +100,9 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
                     },
                     get_options,
                 )
-                .map_err(Error::Darksky),
-            _ => client
+                .map_err(Error::Darksky)
+        } else {
+            client
                 .get_forecast_time_machine(
                     &config.token,
                     config.lat,
@@ -110,7 +112,7 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
                         .expect("couldn't read argument to historical option"),
                     get_options,
                 )
-                .map_err(Error::Darksky),
+                .map_err(Error::Darksky)
         }
     }
 }
