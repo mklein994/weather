@@ -3,11 +3,11 @@ use darksky;
 use serde_json;
 use toml;
 
+use crate::Error::*;
 use std::error;
 use std::fmt;
 use std::io;
 use weather_icons::OutOfBounds;
-use Error::*;
 
 #[derive(Debug)]
 pub enum Error {
@@ -20,7 +20,7 @@ pub enum Error {
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             Clap(ref err) => err.fmt(f),
             Darksky(ref err) => err.fmt(f),
@@ -44,7 +44,7 @@ impl error::Error for Error {
         }
     }
 
-    fn cause(&self) -> Option<&error::Error> {
+    fn cause(&self) -> Option<&dyn error::Error> {
         match *self {
             Clap(ref err) => Some(err),
             Darksky(ref err) => Some(err),

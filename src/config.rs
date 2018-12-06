@@ -1,5 +1,5 @@
 use super::{Error, Result};
-use graph::{Highlight, Style, Weight};
+use crate::graph::{Highlight, Style, Weight};
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;

@@ -1,5 +1,6 @@
 use chrono::{Local, Timelike};
 use clap::{App, Arg, Shell, SubCommand};
+use lazy_static::lazy_static;
 
 lazy_static! {
     // This is the same as $(date -Is), that is, "%Y-%m-%dT%H:%M:%S%:z".

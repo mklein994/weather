@@ -1,19 +1,9 @@
-extern crate ansi_term;
-extern crate chrono;
 #[macro_use]
 extern crate clap;
-extern crate darksky;
-#[macro_use]
-extern crate lazy_static;
 #[macro_use]
 extern crate log;
-extern crate reqwest;
-extern crate serde;
 #[macro_use]
 extern crate serde_derive;
-extern crate serde_json;
-extern crate toml;
-extern crate weather_icons;
 
 pub mod app;
 pub mod color;
@@ -30,13 +20,13 @@ use std::fs::File;
 use std::io::prelude::*;
 use weather_icons::{Condition, DripIcon, Moon, Time, WeatherIcon};
 
-pub use config::Config;
-pub use error::Error;
-use graph::Graph;
+pub use crate::config::Config;
+pub use crate::error::Error;
+use crate::graph::Graph;
 
 type Result<T> = std::result::Result<T, Error>;
 
-pub fn run(config: &Config, matches: &ArgMatches) -> Result<()> {
+pub fn run(config: &Config, matches: &ArgMatches<'_>) -> Result<()> {
     let weather_data = get_weather(&config, &matches)?;
     if matches.occurrences_of("json") == 1 {
         println!(
@@ -51,7 +41,7 @@ pub fn run(config: &Config, matches: &ArgMatches) -> Result<()> {
     Ok(())
 }
 
-fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models::Forecast> {
+fn get_weather(config: &Config, matches: &ArgMatches<'_>) -> Result<darksky::models::Forecast> {
     if matches.is_present("debug") || matches.is_present("local") {
         let mut contents = String::new();
 
@@ -118,7 +108,7 @@ fn get_weather(config: &Config, matches: &ArgMatches) -> Result<darksky::models:
 }
 
 pub fn print_weather(
-    matches: &ArgMatches,
+    matches: &ArgMatches<'_>,
     config: &Config,
     weather: darksky::models::Forecast,
 ) -> Result<()> {

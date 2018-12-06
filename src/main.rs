@@ -1,11 +1,7 @@
 #[macro_use]
 extern crate clap;
-extern crate dotenv;
-extern crate env_logger;
 #[macro_use]
 extern crate log;
-extern crate dirs;
-extern crate weather;
 
 use clap::Shell;
 use std::path::PathBuf;

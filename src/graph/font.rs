@@ -46,7 +46,7 @@ impl Font {
 }
 
 impl fmt::Display for Font {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::Style::*;
         use self::Weight::*;
         write!(
