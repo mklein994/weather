@@ -208,7 +208,7 @@ pub fn print_weather(
                 daily_data[0]
                     .moon_phase
                     .expect("first day moon phase missing"),
-                &config.moon_style
+                config.moon_style
             )?
         );
 
