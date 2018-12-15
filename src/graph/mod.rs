@@ -26,7 +26,7 @@ impl Graph {
     pub fn new() -> Self {
         Self {
             values: Vec::new(),
-            font: Default::default(),
+            font: Font::default(),
             highlight: None,
         }
     }
