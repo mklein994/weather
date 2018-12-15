@@ -32,29 +32,7 @@ impl fmt::Display for Error {
     }
 }
 
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Clap(ref err) => err.description(),
-            Darksky(ref err) => err.description(),
-            Io(ref err) => err.description(),
-            Json(ref err) => err.description(),
-            Moon(ref err) => err.description(),
-            Toml(ref err) => err.description(),
-        }
-    }
-
-    fn cause(&self) -> Option<&dyn error::Error> {
-        match *self {
-            Clap(ref err) => Some(err),
-            Darksky(ref err) => Some(err),
-            Io(ref err) => Some(err),
-            Json(ref err) => Some(err),
-            Moon(ref err) => Some(err),
-            Toml(ref err) => Some(err),
-        }
-    }
-}
+impl error::Error for Error {}
 
 impl From<clap::Error> for Error {
     fn from(err: clap::Error) -> Self {
