@@ -1,0 +1,22 @@
+image: archlinux
+sources:
+    - https://github.com/mklein994/weather
+environment:
+  PATH: '"~/.cargo/bin:$PATH"'
+  PROJECT_DIR: "weather"
+tasks:
+    - rustup: |
+        curl -sSf -o rustup.sh "https://sh.rustup.rs"
+        sh ./rustup.sh -y
+        rustc --version
+        cargo --version
+    - fmt_check: |
+        rustup component add rustfmt
+        cd $PROJECT_DIR
+        cargo fmt -- --check
+    - build: |
+        cd $PROJECT_DIR
+        cargo build --verbose
+    - test: |
+        cd $PROJECT_DIR
+        cargo test --verbose
