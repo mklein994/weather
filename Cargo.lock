@@ -250,7 +250,7 @@ dependencies = [
 [[package]]
 name = "darksky"
 version = "0.8.1"
-source = "git+https://github.com/zeyla/darksky.rs?rev=12685a4e#12685a4e052f33c5d97cf7328579c5468ef53c9e"
+source = "git+https://github.com/rusty-crates/darksky.rs?rev=12685a4e#12685a4e052f33c5d97cf7328579c5468ef53c9e"
 dependencies = [
  "reqwest 0.9.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.88 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1403,7 +1403,7 @@ dependencies = [
  "ansi_term 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "darksky 0.8.1 (git+https://github.com/zeyla/darksky.rs?rev=12685a4e)",
+ "darksky 0.8.1 (git+https://github.com/rusty-crates/darksky.rs?rev=12685a4e)",
  "dirs 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1506,7 +1506,7 @@ dependencies = [
 "checksum crossbeam-deque 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)" = "05e44b8cf3e1a625844d1750e1f7820da46044ff6d28f4d43e455ba3e5bb2c13"
 "checksum crossbeam-epoch 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)" = "04c9e3102cc2d69cd681412141b390abd55a362afc1540965dad0ad4d34280b4"
 "checksum crossbeam-utils 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)" = "f8306fcef4a7b563b76b7dd949ca48f52bc1141aa067d2ea09565f3e2652aa5c"
-"checksum darksky 0.8.1 (git+https://github.com/zeyla/darksky.rs?rev=12685a4e)" = "<none>"
+"checksum darksky 0.8.1 (git+https://github.com/rusty-crates/darksky.rs?rev=12685a4e)" = "<none>"
 "checksum dirs 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)" = "88972de891f6118092b643d85a0b28e0678e0f948d7f879aa32f2d5aafe97d2a"
 "checksum dtoa 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)" = "6d301140eb411af13d3115f9a562c85cc6b541ade9dfa314132244aaee7489dd"
 "checksum encoding_rs 0.8.16 (registry+https://github.com/rust-lang/crates.io-index)" = "0535f350c60aac0b87ccf28319abc749391e912192255b0c00a2c12c6917bd73"

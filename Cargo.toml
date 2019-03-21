@@ -22,7 +22,8 @@ weather_icons = { git = "https://github.com/mklein994/weather_icons" }
 [dependencies.darksky]
 # version = ">0.8.1"
 features = ["reqwest"]
-git = "https://github.com/zeyla/darksky.rs"
-# TODO: change this to the latest stable version > 0.8.1
+git = "https://github.com/rusty-crates/darksky.rs"
+# TODO: change this to the latest stable version > 0.8.1, which includes the
+# necessary version bump to openssl.
 rev = "12685a4e"
 default-features = false
