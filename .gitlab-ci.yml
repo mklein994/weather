@@ -1,0 +1,38 @@
+stages:
+  - build
+  - test
+
+.build:
+  stage: build
+  script:
+    - rustc --version && cargo --version
+    - rustup component add rustfmt clippy
+    - rustfmt --version
+    - cargo fmt -- --check
+    - cargo clippy --version
+      # `cargo clippy` calls `cargo build`
+    - cargo clippy --verbose -- -Wclippy::all
+
+.test:
+  stage: test
+  script:
+    - rustc --version && cargo --version
+    - cargo test --verbose
+
+rust-latest:build:
+  extends: .build
+  image: rust:latest
+
+rust-latest:test:
+  extends: .test
+  image: rust:latest
+
+rust-nightly:build:
+  extends: .build
+  image: rustlang/rust:nightly
+  allow_failure: true
+
+rust-nightly:test:
+  extends: .test
+  image: rustlang/rust:nightly
+  allow_failure: true
