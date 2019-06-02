@@ -1,38 +1,77 @@
 stages:
+  - lint
   - build
+  - clippy
   - test
 
-.build:
+.stable: &stable
+  image: rust:latest
+  before_script:
+    - rustup default stable
+
+.nightly: &nightly
+  image: rustlang/rust:nightly
+  before_script:
+    - rustup default nightly
+  allow_failure: true
+
+.lint: &lint
+  stage: lint
+  script:
+    - rustup component add rustfmt
+    - cargo fmt -- --check
+
+.build: &build
   stage: build
   script:
-    - rustc --version && cargo --version
-    - rustup component add rustfmt clippy
-    - rustfmt --version
-    - cargo fmt -- --check
-    - cargo clippy --version
-      # `cargo clippy` calls `cargo build`
-    - cargo clippy --verbose -- -Wclippy::all
+    - cargo build
+  artifacts:
+    paths:
+      - target/
 
-.test:
+.clippy: &clippy
+  stage: clippy
+  script:
+    - rustup component add clippy
+    - cargo clippy -- -Wclippy::all
+
+.test: &test
   stage: test
   script:
-    - rustc --version && cargo --version
-    - cargo test --verbose
+    - cargo test
 
-rust-latest:build:
-  extends: .build
-  image: rust:latest
+stable lint:
+  <<: *stable
+  <<: *lint
 
-rust-latest:test:
-  extends: .test
-  image: rust:latest
+nightly lint:
+  <<: *nightly
+  <<: *lint
 
-rust-nightly:build:
-  extends: .build
-  image: rustlang/rust:nightly
-  allow_failure: true
+stable build:
+  <<: *stable
+  <<: *build
 
-rust-nightly:test:
-  extends: .test
-  image: rustlang/rust:nightly
-  allow_failure: true
+nightly build:
+  <<: *nightly
+  <<: *build
+
+stable clippy:
+  <<: *stable
+  <<: *clippy
+
+nightly clippy:
+  <<: *nightly
+  <<: *clippy
+
+stable test:
+  <<: *stable
+  <<: *test
+  dependencies:
+    - stable build
+
+nightly test:
+  <<: *nightly
+  <<: *test
+  dependencies:
+    - nightly build
