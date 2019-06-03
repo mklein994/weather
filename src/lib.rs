@@ -359,14 +359,14 @@ mod tests {
 
         for bearing in 0..360 {
             let expected = match (bearing + 180) % 360 {
-                23...67 => arrows[0],
-                68...112 => arrows[1],
-                113...157 => arrows[2],
-                158...202 => arrows[3],
-                203...247 => arrows[4],
-                248...292 => arrows[5],
-                293...337 => arrows[6],
-                338...360 | 0...22 => arrows[7],
+                23..=67 => arrows[0],
+                68..=112 => arrows[1],
+                113..=157 => arrows[2],
+                158..=202 => arrows[3],
+                203..=247 => arrows[4],
+                248..=292 => arrows[5],
+                293..=337 => arrows[6],
+                338..=360 | 0..=22 => arrows[7],
                 _ => unreachable!()//"wind bearing out of range",
             };
 
