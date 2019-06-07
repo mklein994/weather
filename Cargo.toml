@@ -25,5 +25,5 @@ features = ["reqwest"]
 git = "https://github.com/rusty-crates/darksky.rs"
 # TODO: change this to the latest stable version > 0.8.1, which includes the
 # necessary version bump to openssl.
-rev = "12685a4e"
+rev = "fb9a9d6"
 default-features = false
