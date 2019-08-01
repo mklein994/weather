@@ -367,7 +367,7 @@ mod tests {
                 248..=292 => arrows[5],
                 293..=337 => arrows[6],
                 338..=360 | 0..=22 => arrows[7],
-                _ => unreachable!()//"wind bearing out of range",
+                _ => unreachable!(), //"wind bearing out of range",
             };
 
             let actual = get_wind_bearing_icon(bearing);
