@@ -6,7 +6,7 @@ environment:
 tasks:
     - rustup: |
         curl -sSf -o rustup.sh "https://sh.rustup.rs"
-        sh ./rustup.sh -y
+        sh ./rustup.sh -y --profile minimal
         . ~/.cargo/env
         rustc --version
         cargo --version
