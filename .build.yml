@@ -2,7 +2,7 @@ image: archlinux
 sources:
     - https://github.com/mklein994/weather
 environment:
-  PATH: '"~/.cargo/bin:$PATH"'
+  PATH: "~/.cargo/bin:$PATH"
   PROJECT_DIR: "weather"
 tasks:
     - rustup: |
