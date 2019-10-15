@@ -9,7 +9,7 @@ ansi_term = "0.12.0"
 chrono = "0.4.6"
 clap = { version = "2.32.0", features = ["wrap_help"] }
 dirs = "2.0.1"
-env_logger = "0.6.0"
+env_logger = "0.7.0"
 lazy_static = "1.2.0"
 log = "0.4.6"
 reqwest = "0.9.17"
