@@ -14,7 +14,7 @@ pub enum Weight {
 
 impl Default for Weight {
     fn default() -> Self {
-        Weight::Medium
+        Self::Medium
     }
 }
 
@@ -28,7 +28,7 @@ pub enum Style {
 
 impl Default for Style {
     fn default() -> Self {
-        Style::Bar
+        Self::Bar
     }
 }
 

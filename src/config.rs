@@ -52,6 +52,6 @@ pub enum IconStyle {
 
 impl Default for IconStyle {
     fn default() -> Self {
-        IconStyle::WeatherIcons
+        Self::WeatherIcons
     }
 }
