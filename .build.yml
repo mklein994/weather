@@ -1,25 +1,26 @@
 image: archlinux
 sources:
-    - https://github.com/mklein994/weather
+  - https://github.com/mklein994/weather
 environment:
-  PROJECT_DIR: "weather"
+  PROJECT_PATH: "weather"
 tasks:
-    - rustup: |
-        curl -sSf -o rustup.sh "https://sh.rustup.rs"
-        sh ./rustup.sh -y --profile minimal
-        . ~/.cargo/env
-        rustc --version
-        cargo --version
-    - fmt_check: |
-        . ~/.cargo/env
-        rustup component add rustfmt
-        cd $PROJECT_DIR
-        cargo fmt -- --check
-    - build: |
-        . ~/.cargo/env
-        cd $PROJECT_DIR
-        cargo build --verbose
-    - test: |
-        . ~/.cargo/env
-        cd $PROJECT_DIR
-        cargo test --verbose
+  - rustup: |
+      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
+        sh -s -- -y --profile minimal --component rustfmt
+      cat ~/.cargo/env >> ~/.buildenv
+  - stable: |
+      cd $PROJECT_PATH
+      cargo fmt -- --check
+      cargo build --verbose
+      cargo test --verbose
+      cargo doc --no-deps --verbose
+  - clippy: |
+      cd $PROJECT_PATH
+      rustup component add clippy
+      cargo clippy --verbose
+  - nightly: |
+      cd $PROJECT_PATH
+      rustup toolchain install nightly
+      cargo +nightly build --verbose ||:
+      cargo +nightly test --verbose ||:
+      cargo +nightly doc --no-deps --verbose ||:
