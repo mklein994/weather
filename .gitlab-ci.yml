@@ -1,0 +1,77 @@
+stages:
+  - lint
+  - build
+  - clippy
+  - test
+
+.stable: &stable
+  image: rust:latest
+  before_script:
+    - rustup default stable
+
+.nightly: &nightly
+  image: rustlang/rust:nightly
+  before_script:
+    - rustup default nightly
+  allow_failure: true
+
+.lint: &lint
+  stage: lint
+  script:
+    - rustup component add rustfmt
+    - cargo fmt -- --check
+
+.build: &build
+  stage: build
+  script:
+    - cargo build
+  artifacts:
+    paths:
+      - target/
+
+.clippy: &clippy
+  stage: clippy
+  script:
+    - rustup component add clippy
+    - cargo clippy -- -Wclippy::all
+
+.test: &test
+  stage: test
+  script:
+    - cargo test
+
+stable lint:
+  <<: *stable
+  <<: *lint
+
+nightly lint:
+  <<: *nightly
+  <<: *lint
+
+stable build:
+  <<: *stable
+  <<: *build
+
+nightly build:
+  <<: *nightly
+  <<: *build
+
+stable clippy:
+  <<: *stable
+  <<: *clippy
+
+nightly clippy:
+  <<: *nightly
+  <<: *clippy
+
+stable test:
+  <<: *stable
+  <<: *test
+  dependencies:
+    - stable build
+
+nightly test:
+  <<: *nightly
+  <<: *test
+  dependencies:
+    - nightly build
